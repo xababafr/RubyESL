@@ -1,0 +1,84 @@
+class Emitter < Actor
+SEND : 
+OUTPUT 
+f
+DEF initialize
+DEF behavior
+{
+behavior
+(args)
+(for
+  (lvasgn :i)
+  (irange
+    (int 0)
+    (int 10))
+  (send nil :send
+    (lvar :i)
+    (sym :f)))
+}
+class Computation < Actor
+SEND : 
+INPUT 
+a
+b
+SEND : 
+OUTPUT 
+f
+DEF behavior
+{
+behavior
+(args)
+(for
+  (lvasgn :i)
+  (irange
+    (int 0)
+    (int 10))
+  (begin
+    (lvasgn :a
+      (send nil :receive
+        (sym :a)))
+    (lvasgn :b
+      (send nil :receive
+        (sym :b)))
+    (lvasgn :v
+      (send
+        (lvar :a) :*
+        (lvar :b)))
+    (send nil :puts
+      (dstr
+        (str "computing ")
+        (begin
+          (lvar :a))
+        (str "*")
+        (begin
+          (lvar :b))
+        (str " => ")
+        (begin
+          (lvar :v))))
+    (send nil :send
+      (lvar :v)
+      (sym :f))))
+}
+class Receiver < Actor
+SEND : 
+INPUT 
+i1
+DEF behavior
+{
+behavior
+(args)
+(for
+  (lvasgn :i)
+  (irange
+    (int 0)
+    (int 10))
+  (begin
+    (lvasgn :v
+      (send nil :receive
+        (sym :i1)))
+    (send nil :puts
+      (dstr
+        (str "received : ")
+        (begin
+          (lvar :v))))))
+}
