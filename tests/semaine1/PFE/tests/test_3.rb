@@ -9,7 +9,7 @@ parsed_code2 = Parser::CurrentRuby.parse(code2)
 puts parsed_code2
 
 # parcours les classes et stocke dans un tableau les inputs/outputs de chacune d'entre elle
-class Processor < AST::Processor
+class InOuts < AST::Processor
 
 	attr_accessor :inouts
 	attr_accessor :currentClass
@@ -120,7 +120,7 @@ class Behavior < AST::Processor
 end
 
 # 1/ we get the inouts with Processor
-ast = Processor.new
+ast = InOuts.new
 ast.process(parsed_code)
 puts "final @inouts : " 
 puts ast.inouts

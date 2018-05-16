@@ -3,44 +3,56 @@ require 'parser/current'
 code = File.read('structure.rb')
 parsed_code = Parser::CurrentRuby.parse(code)
 
-#puts parsed_code
+code2 = File.read('connexions.rb')
+parsed_code2 = Parser::CurrentRuby.parse(code2)
 
-class Processor < AST::Processor
+# parcours les classes et stocke dans un tableau les inputs/outputs de chacune d'entre elle
+class InOuts < AST::Processor
+
+	attr_accessor :inouts
+	attr_accessor :currentClass
+
+	def initialize()
+		@inouts = {}
+		@currentClass = ""	
+	end
+
 	def on_begin(node)
 		node.children.each { |c| process(c) }
 	end
 
 	def on_class(node)
-		#puts "---------\n\n"
-		#puts node.children
-		puts "class " + 
-		     node.children[0].children[1].to_s + 
-		     " < " + 
-		     node.children[1].children[1].to_s
+		@currentClass = node.children[0].children[1]
+	
+		@inouts[ @currentClass ] = {
+			:inputs => [],
+			:outputs => [],
+			:inherit => node.children[1].children[1]
+		}
 		
 		process(node.children[2])	
 	end
 
 	def on_send(node)
-		puts "SEND : "
-		#puts node
-		if node.children[1].to_s == "output"
-			puts "OUTPUT " + node.children[2].children[0].to_s
-		elsif node.children[1].to_s == "input"
-			puts "INPUT " + node.children[2].children[0].to_s
+		sendType = ""
+		if node.children[1] == :output
+			sendType = :outputs 
+		elsif node.children[1] == :input
+			sendType = :inputs
 		else
-			puts "NOTHIN'"
+			sendType = :nothing
 		end
+		node.children.each_index { |i|
+			if i >= 2
+				if sendType != :nothing
+					@inouts[ @currentClass ][sendType] << { :name => node.children[i].children[0], :type => :none }
+				end
+			end	
+		}
 	end
 
 	def on_def(node)
-		puts "DEF " + node.children[0].to_s
-		#puts node
-		if node.children[0].to_s == "behavior"
-			puts "{"
-			puts node.children
-			puts "}"
-		end
+
 	end
 
 	def handler_missing(node)
@@ -48,8 +60,8 @@ class Processor < AST::Processor
 	end
 end
 
-# ce code parcours toutes les classes du fichier structure.rb. Pour chacune d'entre elle, il parcours les inputs, outputs et behaviors
-# pour l'instant, il s'agit d'un simple parcours. Il faudrait rajouter un @classe_actuelle ou un truc du style pour savoir à quel endroit du parcours on en est.
-
-ast = Processor.new
+# 1/ we get the inouts with Processor
+ast = InOuts.new
 ast.process(parsed_code)
+puts "final @inouts : " 
+puts ast.inouts

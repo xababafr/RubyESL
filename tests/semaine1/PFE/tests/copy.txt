@@ -1,0 +1,35 @@
+(begin
+  (lvasgn :e1
+    (send
+      (const nil :Emitter) :new
+      (str "e1")))
+  (lvasgn :e2
+    (send
+      (const nil :Emitter) :new
+      (str "e2")))
+  (lvasgn :comp
+    (send
+      (const nil :Computation) :new
+      (str "comp")))
+  (lvasgn :recv
+    (send
+      (const nil :Receiver) :new
+      (str "recv")))
+  (send nil :connect
+    (lvar :e1)
+    (sym :f)
+    (lvar :comp)
+    (sym :a)
+    (sym :fifo10))
+  (send nil :connect
+    (lvar :e2)
+    (sym :f)
+    (lvar :comp)
+    (sym :b)
+    (sym :fifo10))
+  (send nil :connect
+    (lvar :comp)
+    (sym :f)
+    (lvar :recv)
+    (sym :i1)
+    (sym :fifo7)))
