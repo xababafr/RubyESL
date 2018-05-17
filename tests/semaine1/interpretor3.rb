@@ -7,24 +7,29 @@ code = Proc.new do
 	end
 end
 
+# here we can say that :a ad :b corresponds to 2 and 3 thanks to a corresponding table updated by previous evals()	
+$corresp = [[:a, 2], [:b, 3]]
+	
 def interpretor(proc)
-	# here we can say that :a ad :b corresponds to 2 and 3 thanks to a corresponding table updated by previous evals()	
-	corresp = [[:a, 2], [:b, 3]]
 		
 	def send(var,symbol)
-		corres << [symbol, var]
+		$corresp << [symbol, var]
 	end
 
 	def receive(symbol)
 		ret = :nil
-		corresp.each { |tab|
+		$corresp.each { |tab|
 			if tab[0] == symbol
-				ret tab[1]
+				ret = tab[1]
 			end
 		}
 		ret
 	end
 	proc.call()
+
 end
 
-interpretor(code)
+# for the "global" break, I might just use a throw + catch
+
+interpretor code
+puts $corresp.uniq
