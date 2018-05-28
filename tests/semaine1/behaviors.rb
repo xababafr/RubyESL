@@ -86,6 +86,7 @@ $inouts = {
 
 }
 
+# FAIRE UN TABLEAU DE VALEURS
 def interpretor(proc)
 		
 	def send(var,symbol)
