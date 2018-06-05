@@ -1,12 +1,20 @@
-require_relative "../lib/mts_parser2"
+require_relative "../lib/mts_parser3"
 
 analyzer=MTS::Analyzer.new
 analyzer.open "./struct3.rb"
 analyzer.parse
+
+puts "BEHAVIORS"
+
 pp analyzer.behaviors
 
 $vars = {
+  [:Sensor,:behavior] => {
 
+  },
+  [:Sensor, :test] => {
+    
+  }
 }
 
 $methods = {
@@ -30,15 +38,6 @@ class BasicVisitor < Visitor
 
   def visit subject
     pp subject
-  end
-end
-
-class GetTypeVisitor < Visitor
-  def initialize
-  end
-
-  def visit subject
-
   end
 end
 

@@ -3,6 +3,12 @@ require_relative "visitor"
 module MTS
 
   class Ast
+    attr_accessor :context
+
+    def initialize context
+      @context = context
+    end
+
     def get_type
       return self.class.name
     end
@@ -58,7 +64,7 @@ module MTS
       puts "<> Assign : #{@lhs} = #{@rhs}"
       #@lhs.accept(visitor)
       @rhs.accept(visitor)
-      $vars[@lhs] = @rhs.get_type
+      $contexts[visitor.context][@lhs] = @rhs.get_type
     end
   end
 
@@ -169,7 +175,7 @@ module MTS
       #pp @args
       #pp ({:caller => callerType, :args => argsTypes})
       # 'caller.methodname' 'argsTypes'
-      $methods[callerType+"."+@method.to_s][argsTypes]
+      SIGNATURES[callerType+"."+@method.to_s][argsTypes]
     end
   end
 
@@ -203,7 +209,7 @@ module MTS
 
     def get_type
       # we get the type that was already inferred for the variable
-      $vars[@name]
+      $contexts[visitor.context][@name]
     end
   end
 
