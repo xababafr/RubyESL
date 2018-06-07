@@ -19,9 +19,14 @@ module MTS
       # for a given method's context
       # global for now, is there a better way?
       $contexts = {}
+      $currentContext = nil
+      $methods = @methods
 
       puts "TInfer initialized : "
       pp @methods.keys
+      @methods.keys.each do |key|
+        $contexts[key] = {}
+      end
 
       inferTypes()
     end
@@ -30,7 +35,11 @@ module MTS
       @methods.each do |methodArr|
         #pp method
         context, method = methodArr
-        methodArr[1].accept BasicVisitor.new context
+        # assez degueu
+        if context[1] == :behavior
+          $currentContext = context
+          methodArr[1].accept BasicVisitor.new
+        end
       end
 
       pp $contexts

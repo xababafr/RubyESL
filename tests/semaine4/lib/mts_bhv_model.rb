@@ -64,7 +64,8 @@ module MTS
       puts "<> Assign : #{@lhs} = #{@rhs}"
       #@lhs.accept(visitor)
       @rhs.accept(visitor)
-      $contexts[visitor.context][@lhs] = @rhs.get_type
+      pp visitor.context
+      $contexts[$currentContext][@lhs] = @rhs.get_type
     end
   end
 
@@ -166,16 +167,52 @@ module MTS
     end
 
     def get_type
-      callerType = @caller.get_type
+
+      userDefinedMethod = false
+      newContext = nil
+      $contexts.keys.each do |key|
+        # for now, we just check with the name
+        # if we are a user defined method :
+        if key[1] == @method
+          userDefinedMethod = true
+          newContext = key
+        end
+      end
       argsTypes = []
       @args.each do |arg|
         argsTypes << arg.get_type
       end
-      puts "\n\n"
-      #pp @args
-      #pp ({:caller => callerType, :args => argsTypes})
-      # 'caller.methodname' 'argsTypes'
-      SIGNATURES[callerType+"."+@method.to_s][argsTypes]
+
+      puts "ARGSTYPES"
+      pp @args
+      pp argsTypes
+
+      if !userDefinedMethod
+
+        callerType = @caller.get_type
+        # 'caller.methodname' 'argsTypes'
+        puts "\n\n"
+        SIGNATURES[callerType+"."+@method.to_s][argsTypes]
+
+      else
+
+        puts "userDefinedMethod"
+        recursiveVisitor = BasicVisitor.new
+        pp $methods
+        $methods.values.each do |met|
+          if met.name == @method
+            # define the context for the method
+            for i in (0...met.args.size)
+              $contexts[newContext][met.args[i]] = argsTypes[i]
+            end
+
+            # then explore it
+            met.accept recursiveVisitor
+          end
+        end
+
+
+      end
     end
   end
 
@@ -209,7 +246,7 @@ module MTS
 
     def get_type
       # we get the type that was already inferred for the variable
-      $contexts[visitor.context][@name]
+      $contexts[$currentContext][@name]
     end
   end
 
