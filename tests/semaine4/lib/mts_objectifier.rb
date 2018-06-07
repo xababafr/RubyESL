@@ -1,4 +1,4 @@
-require_relative "./mts_bhv_model"
+require_relative "./mts_objects"
 
 module MTS
   class Objectifier

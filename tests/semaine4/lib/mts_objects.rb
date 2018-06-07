@@ -1,4 +1,5 @@
 require_relative "visitor"
+require_relative "mts_behaviours"
 
 module MTS
 
@@ -10,7 +11,8 @@ module MTS
     end
 
     def get_type
-      return self.class.name
+      proc = DefaultBehaviour.new
+      self.instance_eval &proc.behaviour
     end
   end
   ## these are the containers
@@ -40,7 +42,8 @@ module MTS
     end
 
     def get_type
-      @stmts[0].get_type
+      proc = BodyBehaviour.new
+      self.instance_eval &proc.behaviour
     end
 
     def accept(visitor)
@@ -65,7 +68,8 @@ module MTS
       #@lhs.accept(visitor)
       @rhs.accept(visitor)
       pp visitor.context
-      DATA.contexts[DATA.currentContext][@lhs] = @rhs.get_type
+      proc = AssignBehaviour.new # a behaviour in accept() !
+      self.instance_eval &proc.behaviour
     end
   end
 
@@ -167,75 +171,8 @@ module MTS
     end
 
     def get_type
-
-      userDefinedMethod = false
-      oldcontext = nil
-      newContext = nil
-      retType = nil
-      DATA.contexts.keys.each do |key|
-        # for now, we just check with the name
-        # if we are a user defined method :
-        if key[1] == @method
-          userDefinedMethod = true
-          newContext = key
-        end
-      end
-      argsTypes = []
-      @args.each do |arg|
-        argsTypes << arg.get_type
-      end
-
-      puts "ARGSTYPES"
-      pp @args
-      pp argsTypes
-
-      if !userDefinedMethod
-
-        callerType = @caller.get_type
-        # 'caller.methodname' 'argsTypes'
-        puts "\n\n"
-        puts callerType+"."+@method.to_s
-
-        # return the type corresponding the the signature
-        retType = DATA.signatures[callerType+"."+@method.to_s][argsTypes]
-
-      else
-
-        puts "userDefinedMethod"
-        oldContext = DATA.currentContext.dup
-        DATA.currentContext = newContext
-        recursiveVisitor = BasicVisitor.new
-        #pp DATA.methods
-        DATA.methods.values.each do |met|
-          if met.name == @method
-            # define the context for the method
-            for i in (0...met.args.size)
-              DATA.contexts[newContext][met.args[i]] = argsTypes[i]
-            end
-
-            puts "newContext"
-            pp DATA.contexts
-
-            # then explore it
-            met.accept recursiveVisitor
-            puts "RETURN TYPES"
-            pp DATA.returnTypes
-
-            retType = DATA.returnTypes[DATA.currentContext]
-          end
-        end
-
-        DATA.currentContext = oldContext
-        pp DATA.currentContext
-
-      end
-
-      if retType.kind_of?(Array)
-        retType.join(" | ")
-      else
-        retType
-      end
-
+      proc = MCallBehaviour.new
+      self.instance_eval &proc.behaviour
     end
   end
 
@@ -268,8 +205,8 @@ module MTS
     end
 
     def get_type
-      # we get the type that was already inferred for the variable
-      DATA.contexts[DATA.currentContext][@name]
+      proc = LVarBehaviour.new
+      self.instance_eval &proc.behaviour
     end
   end
 
@@ -314,14 +251,8 @@ module MTS
     end
 
     def get_type
-      types = []
-      @elements.each do |el|
-        cType = el.get_type
-        unless types.include? cType
-          types << cType
-        end
-      end
-      ("#{self.class.name}[#{types.size}][#{types.join(" | ")}]")
+      proc = AryBehaviour.new
+      self.instance_eval &proc.behaviour
     end
   end
 
@@ -352,25 +283,8 @@ module MTS
     end
 
     def get_type
-      typ = @value.get_type
-      oldType = DATA.returnTypes[DATA.currentContext]
-      if oldType.size > 0
-        union = true
-        oldType.each do |type|
-          if type == typ
-            union = false
-          end
-        end
-        if union
-          DATA.returnTypes[DATA.currentContext] << typ
-        end
-      else
-        DATA.returnTypes[DATA.currentContext] << typ
-      end
-      puts "RETURN TYPE REACHED"
-      pp DATA.returnTypes
-
-      #oldTyp = DATA.contexts[DATA.currentContext][]
+      proc = ReturnBehaviour.new
+      self.instance_eval &proc.behaviour
     end
   end
 
