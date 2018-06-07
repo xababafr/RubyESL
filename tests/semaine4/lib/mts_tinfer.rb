@@ -19,13 +19,14 @@ module MTS
       # for a given method's context
       # global for now, is there a better way?
       $contexts = {}
+      $returnTypes = {}
       $currentContext = nil
       $methods = @methods
 
       puts "TInfer initialized : "
       pp @methods.keys
       @methods.keys.each do |key|
-        $contexts[key] = {}
+        $contexts[key], $returnTypes[key] = {}, []
       end
 
       inferTypes()

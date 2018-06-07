@@ -8,5 +8,9 @@ module MTS
     "MTS::IntLit.+" => {
       ["MTS::IntLit"] => "MTS::IntLit"
     },
+    "MTS::FloatLit.+" => {
+      ["MTS::IntLit"] => "MTS::FloatLit",
+      ["MTS::FloatLit"] => "MTS::FloatLit",
+    },
   }
 end

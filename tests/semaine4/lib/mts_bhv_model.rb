@@ -169,7 +169,9 @@ module MTS
     def get_type
 
       userDefinedMethod = false
+      oldcontext = nil
       newContext = nil
+      retType = nil
       $contexts.keys.each do |key|
         # for now, we just check with the name
         # if we are a user defined method :
@@ -192,13 +194,18 @@ module MTS
         callerType = @caller.get_type
         # 'caller.methodname' 'argsTypes'
         puts "\n\n"
-        SIGNATURES[callerType+"."+@method.to_s][argsTypes]
+        puts callerType+"."+@method.to_s
+
+        # return the type corresponding the the signature
+        retType = SIGNATURES[callerType+"."+@method.to_s][argsTypes]
 
       else
 
         puts "userDefinedMethod"
+        oldContext = $currentContext.dup
+        $currentContext = newContext
         recursiveVisitor = BasicVisitor.new
-        pp $methods
+        #pp $methods
         $methods.values.each do |met|
           if met.name == @method
             # define the context for the method
@@ -206,13 +213,25 @@ module MTS
               $contexts[newContext][met.args[i]] = argsTypes[i]
             end
 
+            puts "newContext"
+            pp $contexts
+
             # then explore it
             met.accept recursiveVisitor
+            puts "RETURN TYPES"
+            pp $returnTypes
+
+            retType = $returnTypes[$currentContext]
           end
         end
 
+        $currentContext = oldContext
+        pp $currentContext
 
       end
+
+      retType
+
     end
   end
 
@@ -312,8 +331,31 @@ module MTS
       @value = value
     end
 
+    def accept visitor
+      @value.accept visitor
+      get_type
+    end
+
     def get_type
-      @value.get_type
+      typ = @value.get_type
+      oldType = $returnTypes[$currentContext]
+      if oldType.size > 0
+        union = true
+        oldType.each do |type|
+          if type == typ
+            union = false
+          end
+        end
+        if union
+          $returnTypes[$currentContext] << typ
+        end
+      else
+        $returnTypes[$currentContext] << typ
+      end
+      puts "RETURN TYPE REACHED"
+      pp $returnTypes
+
+      #oldTyp = $contexts[$currentContext][]
     end
   end
 
