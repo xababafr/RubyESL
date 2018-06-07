@@ -1,6 +1,6 @@
 require_relative "./mts_analyzer"
 require_relative "./mts_objectifier"
-require_relative "./mts_signatures"
+require_relative "./mts_metadata"
 
 module MTS
   class TInfer
@@ -12,38 +12,43 @@ module MTS
 
       # then we convert the ASTs into containers objects
       objectifier = Objectifier.new analyzer.methods_code_h
-      @methods = objectifier.methods_objects
+      #@methods = objectifier.methods_objects
       #pp @methods
 
       # this vars contains all the vars and their type
       # for a given method's context
       # global for now, is there a better way?
-      $contexts = {}
-      $returnTypes = {}
-      $currentContext = nil
-      $methods = @methods
+      #$contexts = {}
+      #$returnTypes = {}
+      #$currentContext = nil
+      #$methods = @methods
+
+      DATA.contexts = {}
+      DATA.returnTypes = {}
+      DATA.currentContext = nil
+      DATA.methods = objectifier.methods_objects
 
       puts "TInfer initialized : "
-      pp @methods.keys
-      @methods.keys.each do |key|
-        $contexts[key], $returnTypes[key] = {}, []
+      pp DATA.methods
+      DATA.methods.keys.each do |key|
+        DATA.contexts[key], DATA.returnTypes[key] = {}, []
       end
 
       inferTypes()
     end
 
     def inferTypes
-      @methods.each do |methodArr|
+      DATA.methods.each do |methodArr|
         #pp method
         context, method = methodArr
         # assez degueu
         if context[1] == :behavior
-          $currentContext = context
+          DATA.currentContext = context
           methodArr[1].accept BasicVisitor.new
         end
       end
 
-      pp $contexts
+      pp DATA.contexts
 
     end
 

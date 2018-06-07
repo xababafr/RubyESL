@@ -65,7 +65,7 @@ module MTS
       #@lhs.accept(visitor)
       @rhs.accept(visitor)
       pp visitor.context
-      $contexts[$currentContext][@lhs] = @rhs.get_type
+      DATA.contexts[DATA.currentContext][@lhs] = @rhs.get_type
     end
   end
 
@@ -172,7 +172,7 @@ module MTS
       oldcontext = nil
       newContext = nil
       retType = nil
-      $contexts.keys.each do |key|
+      DATA.contexts.keys.each do |key|
         # for now, we just check with the name
         # if we are a user defined method :
         if key[1] == @method
@@ -197,36 +197,36 @@ module MTS
         puts callerType+"."+@method.to_s
 
         # return the type corresponding the the signature
-        retType = SIGNATURES[callerType+"."+@method.to_s][argsTypes]
+        retType = DATA.signatures[callerType+"."+@method.to_s][argsTypes]
 
       else
 
         puts "userDefinedMethod"
-        oldContext = $currentContext.dup
-        $currentContext = newContext
+        oldContext = DATA.currentContext.dup
+        DATA.currentContext = newContext
         recursiveVisitor = BasicVisitor.new
-        #pp $methods
-        $methods.values.each do |met|
+        #pp DATA.methods
+        DATA.methods.values.each do |met|
           if met.name == @method
             # define the context for the method
             for i in (0...met.args.size)
-              $contexts[newContext][met.args[i]] = argsTypes[i]
+              DATA.contexts[newContext][met.args[i]] = argsTypes[i]
             end
 
             puts "newContext"
-            pp $contexts
+            pp DATA.contexts
 
             # then explore it
             met.accept recursiveVisitor
             puts "RETURN TYPES"
-            pp $returnTypes
+            pp DATA.returnTypes
 
-            retType = $returnTypes[$currentContext]
+            retType = DATA.returnTypes[DATA.currentContext]
           end
         end
 
-        $currentContext = oldContext
-        pp $currentContext
+        DATA.currentContext = oldContext
+        pp DATA.currentContext
 
       end
 
@@ -269,7 +269,7 @@ module MTS
 
     def get_type
       # we get the type that was already inferred for the variable
-      $contexts[$currentContext][@name]
+      DATA.contexts[DATA.currentContext][@name]
     end
   end
 
@@ -353,7 +353,7 @@ module MTS
 
     def get_type
       typ = @value.get_type
-      oldType = $returnTypes[$currentContext]
+      oldType = DATA.returnTypes[DATA.currentContext]
       if oldType.size > 0
         union = true
         oldType.each do |type|
@@ -362,15 +362,15 @@ module MTS
           end
         end
         if union
-          $returnTypes[$currentContext] << typ
+          DATA.returnTypes[DATA.currentContext] << typ
         end
       else
-        $returnTypes[$currentContext] << typ
+        DATA.returnTypes[DATA.currentContext] << typ
       end
       puts "RETURN TYPE REACHED"
-      pp $returnTypes
+      pp DATA.returnTypes
 
-      #oldTyp = $contexts[$currentContext][]
+      #oldTyp = DATA.contexts[DATA.currentContext][]
     end
   end
 
