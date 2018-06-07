@@ -4,7 +4,12 @@ class Sensor < MTS::Actor
   input :a,:b
   output :f
 
+  def test2
+    return 3
+  end
+
   def test(a,b)
+    c = test2()
     if a > b
       return (a + b)
     else
