@@ -18,6 +18,7 @@ class Sensor < MTS::Actor
       b=2
       c=3
       d=test a,c
+      e = [1,2.4,"10"]
       v=a*(b+c)
       puts "computing #{a}*#{b} => #{v}"
     end

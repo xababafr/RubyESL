@@ -41,6 +41,6 @@ end
 
 analyzer.behaviors[0][:method].accept BasicVisitor.new
 
-puts "\n\n TEST 2 RESULTS : \n\n"
+puts "\n\n TEST 2 RESULTS : \n"
 
 pp $vars

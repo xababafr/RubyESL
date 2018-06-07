@@ -230,7 +230,11 @@ module MTS
 
       end
 
-      retType
+      if retType.kind_of?(Array)
+        retType.join(" | ")
+      else
+        retType
+      end
 
     end
   end
@@ -307,6 +311,17 @@ module MTS
     attr_accessor :elements
     def initialize elements=[]
       @elements=elements
+    end
+
+    def get_type
+      types = []
+      @elements.each do |el|
+        cType = el.get_type
+        unless types.include? cType
+          types << cType
+        end
+      end
+      ("#{self.class.name}[#{types.size}][#{types.join(" | ")}]")
     end
   end
 
