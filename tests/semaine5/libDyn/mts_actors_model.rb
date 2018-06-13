@@ -4,6 +4,7 @@
 #.....................................
 
 require 'pp'
+require_relative 'mts_annotations'
 
 module MTS
 
@@ -31,10 +32,10 @@ module MTS
     def type hash
       caller_method = caller_locations(1,1)[0].label
       hash.each do |name, typ|
-        puts "TYPES(#{name}, #{typ})"
+        #puts "TYPES(#{name}, #{typ})"
         @_varTypes ||= {}
         @_varTypes[caller_method] ||= {}
-        @_varTypes[caller_method][name] = typ
+        @_varTypes[caller_method][name] = TypeFactory.create typ
       end
     end
 

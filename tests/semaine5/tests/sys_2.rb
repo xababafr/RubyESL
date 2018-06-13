@@ -1,9 +1,8 @@
 require "../libDyn/mts_actors_model"
 
 class Sensor < MTS::Actor
-  output :o1 => :int
+  output :o1
   def behavior
-    type :x => :int
     x=0
     while true
       send!(x,:o1)
@@ -14,13 +13,9 @@ class Sensor < MTS::Actor
 end
 
 class Processing < MTS::Actor
-  input  :e1 => :int,
-         :e2 => :int
-  output :o => :int
+  input  :e1, :e2
+  output :o
   def behavior
-    type :accu => :int,
-         :v1   => :int,
-         :v2   => :int
     accu=0
     while true
       v1=receive?(:e1)
@@ -32,11 +27,8 @@ class Processing < MTS::Actor
 end
 
 class Actuator < MTS::Actor
-  input :e => :int
   def behavior
     while true
-      # the unin types makes no sense here, it's just to test
-      type :v => [:int, :float]
       v=receive?(:e)
       puts "actuating with value #{v}"
       puts "cycle #{now}"
