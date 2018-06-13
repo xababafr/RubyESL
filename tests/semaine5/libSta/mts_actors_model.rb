@@ -109,7 +109,7 @@ module MTS
     def connect_as moc_sym,source_sink_h
       source,sink=*source_sink_h.to_a.first
       @actors[source.actor.name]=source.actor
-      @actors[sink.actor.name  ]=sink.actor
+      @actors[ sink.actor.name ]=sink.actor
       channel=(moc_sym==:csp) ? CspChannel.new(source, sink) : KpnChannel.new(source,sink, capacity(moc_sym))
       source.channel=channel
       sink.channel=channel
