@@ -1,9 +1,16 @@
 require "../libDyn/mts_actors_model"
 
+class UselessClass
+  def initialize
+
+  end
+end
+
 class Sensor < MTS::Actor
   output :o1
   def behavior
     x=0
+    register(:x, x)
     while true
       send!(x,:o1)
       x+=1
@@ -17,16 +24,19 @@ class Processing < MTS::Actor
   output :o
   def behavior
     accu=0
+    register(:accu, accu)
     while true
       v1=receive?(:e1)
+      register(:v1, v1)
       v2=receive?(:e2)
+      register(:v2, v2)
       accu+=v1+v2
 
       #testing union type
       if (v2 > 5)
         send!(accu,:o)
       else
-        send!("dada", :o)
+        send!(UselessClass.new, :o)
       end
     end
   end
@@ -37,6 +47,7 @@ class Actuator < MTS::Actor
   def behavior
     while true
       v=receive?(:e)
+      register(:v, v)
       puts "actuating with value #{v}"
       puts "cycle #{now}"
     end

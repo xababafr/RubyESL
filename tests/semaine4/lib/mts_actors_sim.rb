@@ -31,9 +31,6 @@ module MTS
     attr_reader :executed_steps
     attr_accessor :log
 
-    # def behavior
-    # end
-
     def increment_time inc
       @log[:time] << now+inc
     end

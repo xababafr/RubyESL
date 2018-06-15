@@ -1,0 +1,22 @@
+{:INOUTS{:Sensor[{
+:symbol:o1:direction:output:	type[cInteger:
+valuei:typeObjo:MTS::SingleType:	@val@	:Processing[{
+;:e1;	:
+input;[@
+;i;o;;@{
+;:e2;	;;[@
+;i;o;;@{
+;:o;	;
+;[cUselessClass@
+;iM;o:MTS::UnionType;@:Actuator[{
+;:e;	;;[@@
+;iM;o;;@:VARIABLES{	:
+sens1{:xo;;[@
+:
+sens2{;o;;[@
+:
+proc1{:	accuo;;[@
+:v1o;;[@
+:v2o;;[@
+:
+actu1{:vo;;[@@

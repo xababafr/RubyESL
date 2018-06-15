@@ -30,7 +30,7 @@ module MTS
   class Actor
     attr_reader :state
     attr_reader :executed_steps
-    attr_accessor :log
+    attr_accessor :log, :vars
 
     # def behavior
     # end
@@ -59,6 +59,16 @@ module MTS
         @log[:time].pop
         set_time current_time
       end
+    end
+
+    def register sym, var
+      puts "REGISTER(#{sym}, #{var}) ==> #{var.class}"
+      @vars ||= {}
+      @vars[sym] ||= TypeFactory.create([])
+      typArr = @vars[sym].val
+      typArr << var.class
+      typArr.uniq!
+      @vars[sym] = TypeFactory.create(typArr)
     end
 
     def send!(data, port)

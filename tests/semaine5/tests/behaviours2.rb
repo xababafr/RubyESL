@@ -1,3 +1,5 @@
+require 'json'
+
 require_relative "../libDyn/mts_simulator"
 require_relative "../libDyn/mts_actors_model"
 require_relative "../libDyn/mts_actors_sim"
@@ -23,3 +25,18 @@ puts "============================\n"
 pp simulator.system.connexions
 
 puts "===================================\n\n"
+
+$variables = {}
+
+simulator.system.ordered_actors.each do |actor|
+  $variables[actor.name.to_sym] = actor.vars
+end
+
+$TYPESDATA = {
+  :INOUTS => $inouts,
+  :VARIABLES => $variables
+}
+
+pp $TYPESDATA
+
+File.open('TYPESDATA.marshal','w'){|f| f.puts(Marshal.dump($TYPESDATA))}
