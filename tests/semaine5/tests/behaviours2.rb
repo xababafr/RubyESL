@@ -1,4 +1,4 @@
-require 'json'
+require 'yaml'
 
 require_relative "../libDyn/mts_simulator"
 require_relative "../libDyn/mts_actors_model"
@@ -39,4 +39,4 @@ $TYPESDATA = {
 
 pp $TYPESDATA
 
-File.open('TYPESDATA.marshal','w'){|f| f.puts(Marshal.dump($TYPESDATA))}
+File.open('TYPESDATA.yml','w'){|f| f.puts(YAML.dump($TYPESDATA))}

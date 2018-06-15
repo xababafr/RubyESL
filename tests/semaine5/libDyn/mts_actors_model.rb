@@ -178,6 +178,11 @@ module MTS
       @ordered_actors = array
     end
 
+    # for temp file, temporary solution hehe
+    def register sym, val
+
+    end
+
     def create_inouts
 
       @inouts = {}

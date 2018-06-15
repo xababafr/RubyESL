@@ -1,0 +1,66 @@
+---
+:INOUTS:
+  :Sensor:
+  - :symbol: :o1
+    :direction: :output
+    :type: &1
+    - &2 !ruby/class 'Integer'
+    :value: 9
+    :typeObj: !ruby/object:MTS::SingleType
+      val: *1
+  :Processing:
+  - :symbol: :e1
+    :direction: :input
+    :type: &3
+    - *2
+    :value: 9
+    :typeObj: !ruby/object:MTS::SingleType
+      val: *3
+  - :symbol: :e2
+    :direction: :input
+    :type: &4
+    - *2
+    :value: 9
+    :typeObj: !ruby/object:MTS::SingleType
+      val: *4
+  - :symbol: :o
+    :direction: :output
+    :type: &5
+    - &6 !ruby/class 'UselessClass'
+    - *2
+    :value: 72
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *5
+  :Actuator:
+  - :symbol: :e
+    :direction: :input
+    :type: &7
+    - *6
+    - *2
+    :value: 72
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *7
+:VARIABLES:
+  :sens1:
+    :x: !ruby/object:MTS::SingleType
+      val:
+      - *2
+  :sens2:
+    :x: !ruby/object:MTS::SingleType
+      val:
+      - *2
+  :proc1:
+    :accu: !ruby/object:MTS::SingleType
+      val:
+      - *2
+    :v1: !ruby/object:MTS::SingleType
+      val:
+      - *2
+    :v2: !ruby/object:MTS::SingleType
+      val:
+      - *2
+  :actu1:
+    :v: !ruby/object:MTS::UnionType
+      val:
+      - *6
+      - *2
