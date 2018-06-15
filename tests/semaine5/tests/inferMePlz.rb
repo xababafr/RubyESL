@@ -7,11 +7,13 @@ class UselessClass
 end
 
 class Sensor < MTS::Actor
-  output :o1
+  output :o1, :o2
   def behavior
     x=0
+    y = [1,2,"3"]
     while true
       send!(x,:o1)
+      send!(y,:o2)
       x+=1
       wait
     end
@@ -19,13 +21,15 @@ class Sensor < MTS::Actor
 end
 
 class Processing < MTS::Actor
-  input  :e1, :e2
+  input  :e1, :e2, :e3, :e4
   output :o
   def behavior
     accu=0
     while true
       v1=receive?(:e1)
       v2=receive?(:e2)
+      v3=receive?(:e3)
+      v4=receive?(:e4)
       accu+=v1+v2
 
       #testing union type
@@ -64,5 +68,9 @@ sys=MTS::System.new("sys1") do
 
     connect_as(:fifo5, sensor_1.o1 => compute.e1)
     connect_as(:fifo2, sensor_2.o1 => compute.e2)
+
+    connect_as(:fifo5, sensor_1.o2 => compute.e3)
+    connect_as(:fifo5, sensor_2.o2 => compute.e4)
+
     connect_as(:fifo4, compute.o   => actuator.e)
 end

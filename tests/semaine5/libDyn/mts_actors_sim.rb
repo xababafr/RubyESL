@@ -65,10 +65,24 @@ module MTS
       puts "REGISTER(#{sym}, #{var}) ==> #{var.class}"
       @vars ||= {}
       @vars[sym] ||= TypeFactory.create([])
-      typArr = @vars[sym].val
-      typArr << var.class
-      typArr.uniq!
-      @vars[sym] = TypeFactory.create(typArr)
+
+      if var.is_a? Array
+
+        subtypes = []
+        var.each do |v|
+          subtypes << v.class
+          subtypes.uniq!
+        end
+        @vars[sym] = TypeFactory.create([subtypes],var.size)
+
+      else
+
+        typArr = @vars[sym].val
+        typArr << var.class
+        typArr.uniq!
+        @vars[sym] = TypeFactory.create(typArr)
+
+      end
     end
 
     def send!(data, port)
@@ -79,10 +93,24 @@ module MTS
       # 1/ write the value in the correspondig symbol
   		$inouts[cClass].each do |hash|
   			if hash[:symbol] == port
-  				hash[:value] = data
-          hash[:type] << data.class
-          hash[:type] = hash[:type].uniq
-  				hash[:typeObj] = TypeFactory.create(hash[:type])
+          if data.is_a? Array
+
+            subtypes = []
+            data.each do |v|
+              subtypes << v.class
+              subtypes.uniq!
+            end
+            hash[:type] = [subtypes]
+            hash[:typeObj] = TypeFactory.create([subtypes],data.size)
+
+          else
+
+            hash[:value] = data
+            hash[:type] << data.class
+            hash[:type] = hash[:type].uniq
+            hash[:typeObj] = TypeFactory.create(hash[:type])
+
+          end
   			end
   		end
 
@@ -92,10 +120,24 @@ module MTS
   				# then repeat 1/ on the connected symbol (might happen more than once if multiple connexions)
   				$inouts[ connexion[1][:cname] ].each do |hash|
   					if hash[:symbol] == connexion[1][:port]
-  						hash[:value] = data
-              hash[:type] << data.class
-              hash[:type] = hash[:type].uniq
-      				hash[:typeObj] = TypeFactory.create(hash[:type])
+              if data.is_a? Array
+
+                subtypes = []
+                data.each do |v|
+                  subtypes << v.class
+                  subtypes.uniq!
+                end
+                hash[:type] = [subtypes]
+                hash[:typeObj] = TypeFactory.create([subtypes],data.size)
+
+              else
+
+                hash[:value] = data
+                hash[:type] << data.class
+                hash[:type] = hash[:type].uniq
+                hash[:typeObj] = TypeFactory.create(hash[:type])
+
+              end
   					end
   				end
   			end
