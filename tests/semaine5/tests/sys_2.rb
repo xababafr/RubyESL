@@ -2,7 +2,7 @@ require "../libDyn/mts_actors_model"
 
 class Sensor < MTS::Actor
   output :o1
-  def behaviour
+  def behavior
     x=0
     while true
       send!(x,:o1)
@@ -15,7 +15,7 @@ end
 class Processing < MTS::Actor
   input  :e1, :e2
   output :o
-  def behaviour
+  def behavior
     accu=0
     while true
       v1=receive?(:e1)
@@ -28,7 +28,7 @@ end
 
 class Actuator < MTS::Actor
   input :e
-  def behaviour
+  def behavior
     while true
       v=receive?(:e)
       puts "actuating with value #{v}"

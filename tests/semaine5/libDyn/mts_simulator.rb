@@ -12,6 +12,11 @@ module MTS
     def open simfile
       puts "=> open simulation file #{simfile}"
       @system=evaluate(simfile)
+      create_inouts()
+    end
+
+    def create_inouts
+      @system.create_inouts()
     end
 
     def simulate system,max_steps=nil

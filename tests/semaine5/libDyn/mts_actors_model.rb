@@ -160,7 +160,7 @@ module MTS
   end
 
   class System
-    attr_reader :name,:actors,:ordered_actors, :connexions
+    attr_reader :name,:actors,:ordered_actors, :connexions, :inouts
 
     def initialize(name, &block)
       @name = name
@@ -176,6 +176,42 @@ module MTS
 
     def set_actors array
       @ordered_actors = array
+    end
+
+    def create_inouts
+
+      @inouts = {}
+
+      @ordered_actors.each do |actor|
+        currentInouts = []
+
+        inputs, outputs = actor.class.getInouts[0], actor.class.getInouts[1]
+
+        if !(inputs.nil?)
+          inputs.each do |sym|
+            currentInouts << {
+              :symbol => sym,
+              :direction => :input,
+              :type => [],
+              :value => :nil
+            }
+          end
+        end
+
+        if !(outputs.nil?)
+          outputs.each do |sym|
+            currentInouts << {
+              :symbol => sym,
+              :direction => :output,
+              :type => [],
+              :value => :nil
+            }
+          end
+        end
+
+        @inouts[actor.name.to_sym] = currentInouts
+      end
+
     end
 
     # NOT WORKING YET
@@ -223,8 +259,8 @@ module MTS
       end
 
       @connexions << [
-          { :ename => source.actor.name, :port => sourcePort },
-          { :ename => sink.actor.name, :port => sinkPort }
+          { :ename => source.actor.name.to_sym, :port => sourcePort },
+          { :ename => sink.actor.name.to_sym, :port => sinkPort }
       ]
     end
 

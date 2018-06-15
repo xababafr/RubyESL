@@ -61,13 +61,40 @@ module MTS
     end
 
     def send!(data, port)
-      puts "SEND! CALLED"
+      puts "SEND(#{data}, #{port})! CALLED"
+      cEntity = @name.to_sym
+
+      # 1/ write the value in the correspondig symbol
+  		$inouts[cEntity].each do |hash|
+  			if hash[:symbol] == port
+  				hash[:value] = data
+  				hash[:type] << data.class
+  				hash[:type] = hash[:type].uniq
+  			end
+  		end
+
+  		# 2/ write it to the symbols that are connected to the previous one
+  		$connexions.each do |connexion|
+  			if ( connexion[0][:ename] == cEntity )  &&  ( connexion[0][:port] == port )
+          puts "CONN1"
+  				# then repeat 1/ on the connected symbol (might happen more than once if multiple connexions)
+  				$inouts[ connexion[1][:ename] ].each do |hash|
+  					if hash[:symbol] == connexion[1][:port]
+              puts "CONN2"
+  						hash[:value] = data
+  						hash[:type] << data.class
+  						hash[:type] = hash[:type].uniq
+  					end
+  				end
+  			end
+  		end
+
       @ports[port].send TaggedValue.new(now,data)
       increment_time(1)
     end
 
     def receive?(port)
-      puts "RECEIVE! CALLED"
+      puts "RECEIVE(#{port})! CALLED"
       tagged_value = @ports[port].recv()
       fix_current_time_with(tagged_value.time)
       return tagged_value.value
