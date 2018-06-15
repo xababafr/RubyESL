@@ -28,7 +28,7 @@ module MTS
 
   class TypeFactory
     def self.create val
-      if val.is_a? Array
+      if (val.is_a? Array) && (val.size > 1)
         UnionType.new val
       else
         SingleType.new val

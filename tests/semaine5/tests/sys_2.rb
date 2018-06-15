@@ -21,7 +21,13 @@ class Processing < MTS::Actor
       v1=receive?(:e1)
       v2=receive?(:e2)
       accu+=v1+v2
-      send!(accu,:o)
+
+      #testing union type
+      if (v2 > 5)
+        send!(accu,:o)
+      else
+        send!("dada", :o)
+      end
     end
   end
 end

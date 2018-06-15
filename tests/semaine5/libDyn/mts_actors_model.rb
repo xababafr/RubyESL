@@ -209,7 +209,7 @@ module MTS
           end
         end
 
-        @inouts[actor.name.to_sym] = currentInouts
+        @inouts[actor.class.to_s.to_sym] = currentInouts
       end
 
     end
@@ -259,8 +259,8 @@ module MTS
       end
 
       @connexions << [
-          { :ename => source.actor.name.to_sym, :port => sourcePort },
-          { :ename => sink.actor.name.to_sym, :port => sinkPort }
+          { :ename => source.actor.name.to_sym, :cname => source.actor.class.to_s.to_sym, :port => sourcePort },
+          { :ename => sink.actor.name.to_sym, :cname => sink.actor.class.to_s.to_sym, :port => sinkPort }
       ]
     end
 
