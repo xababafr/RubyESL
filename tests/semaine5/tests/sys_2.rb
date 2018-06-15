@@ -2,7 +2,7 @@ require "../libDyn/mts_actors_model"
 
 class Sensor < MTS::Actor
   output :o1
-  def behavior
+  def behaviour
     x=0
     while true
       send!(x,:o1)
@@ -15,7 +15,7 @@ end
 class Processing < MTS::Actor
   input  :e1, :e2
   output :o
-  def behavior
+  def behaviour
     accu=0
     while true
       v1=receive?(:e1)
@@ -27,7 +27,8 @@ class Processing < MTS::Actor
 end
 
 class Actuator < MTS::Actor
-  def behavior
+  input :e
+  def behaviour
     while true
       v=receive?(:e)
       puts "actuating with value #{v}"
@@ -41,6 +42,13 @@ sys=MTS::System.new("sys1") do
     sensor_2 = Sensor.new("sens2")
     compute  = Processing.new("proc1")
     actuator = Actuator.new("actu1")
+
+    # here lies the order of the actors for now
+    set_actors([sensor_1,sensor_2, compute, actuator])
+
+    #connect ({ [sensor_1, :o1] => [compute, :e1] }) , :fifo5
+    #connect ({ [sensor_2, :o1] => [compute, :e1] }) , :fifo2
+    #connect ({ [compute, :o]  => [actuator, :e] }) , :fifo4
 
     connect_as(:fifo5, sensor_1.o1 => compute.e1)
     connect_as(:fifo2, sensor_2.o1 => compute.e2)

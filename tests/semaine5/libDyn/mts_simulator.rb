@@ -32,15 +32,15 @@ module MTS
       dump_logs()
 
       # just to check the data is recorded corectly
-      actors.each { |actor|
-        puts "TYPES OF #{actor[1]}".center(80,'=')
-        puts "vars : "
-        pp actor[1].get_types
-        puts "\ninputs : "
-        pp actor[1].class.getInouts[0]
-        puts "\noutputs : "
-        pp actor[1].class.getInouts[1]
-      }
+      # actors.each { |actor|
+      #   puts "TYPES OF #{actor[1]}".center(80,'=')
+      #   puts "vars : "
+      #   pp actor[1].get_types
+      #   puts "\ninputs : "
+      #   pp actor[1].class.getInouts[0]
+      #   puts "\noutputs : "
+      #   pp actor[1].class.getInouts[1]
+      # }
     end
 
     def dump_logs

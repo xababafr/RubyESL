@@ -61,11 +61,13 @@ module MTS
     end
 
     def send!(data, port)
+      puts "SEND! CALLED"
       @ports[port].send TaggedValue.new(now,data)
       increment_time(1)
     end
 
     def receive?(port)
+      puts "RECEIVE! CALLED"
       tagged_value = @ports[port].recv()
       fix_current_time_with(tagged_value.time)
       return tagged_value.value

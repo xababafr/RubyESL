@@ -4,7 +4,7 @@
 #.....................................
 
 require 'pp'
-require_relative 'mts_annotations'
+require_relative 'mts_types'
 
 module MTS
 
@@ -44,34 +44,68 @@ module MTS
     end
 
     def self.getInouts
-      [@_inputsTypes,@_outputsTypes]
+      [@_inputs,@_outputs]
     end
 
-    def self.input hash
-      # the hash has the {:a => :Integer} structure
-      hash.each do |name, typ|
-        send(:attr_accessor, name)
-        # take note of this new input, we'll use it later
-        @_inputs ||= []
-        @_inputs << name
+    def self.input *args
+      #are we before or after the annotation?
+      if args.first.is_a?(Symbol)
 
-        # for now I use another var to not break the system
-        @_inputsTypes ||= {}
-        @_inputsTypes[name] = typ
+        args.each do |name|
+          send(:attr_accessor, name)
+          # take note of this new input, we'll use it later
+          @_inputs ||= []
+          @_inputs << name
+        end
+
+      else
+
+        # the hash has the {:a => :Integer} structure
+        args.first.each do |name, typ|
+          send(:attr_accessor, name)
+          # take note of this new input, we'll use it later
+          @_inputs ||= []
+          @_inputs << name
+
+          # for now I use another var to not break the system
+          @_inputsTypes ||= {}
+          @_inputsTypes[name] = typ
+        end
+
       end
+
     end
 
-    def self.output hash
-      hash.each do |name, typ|
-        send(:attr_accessor, name)
-        # take note of this new input, we'll use it later
-        @_outputs ||= []
-        @_outputs << name
+    def self.output *args
 
-        # for now I use another var to not break the system
-        @_outputsTypes ||= {}
-        @_outputsTypes[name] = typ
+      #are we before or after the annotation?
+      if args.first.is_a?(Symbol)
+
+        # THE CODE ISNT ANNOTED YET
+        args.each do |name|
+          send(:attr_accessor, name)
+          # take note of this new input, we'll use it later
+          @_outputs ||= []
+          @_outputs << name
+        end
+
+      else
+
+        # THE CODE IS ANNOTED
+        args.first.each do |name, typ|
+          send(:attr_accessor, name)
+          # take note of this new input, we'll use it later
+          @_outputs ||= []
+          @_outputs << name
+
+          # for now I use another var to not break the system
+          @_outputsTypes ||= {}
+          @_outputsTypes[name] = typ
+        end
+
       end
+
+
     end
 
     def create_inputs
@@ -126,13 +160,35 @@ module MTS
   end
 
   class System
-    attr_reader :name,:actors
+    attr_reader :name,:actors,:ordered_actors, :connexions
 
     def initialize(name, &block)
       @name = name
       @actors = {}
+
+      # my vars
+      @ordered_actors = []
+      @connexions = []
+
       @log={}
       self.instance_eval(&block)
+    end
+
+    def set_actors array
+      @ordered_actors = array
+    end
+
+    # NOT WORKING YET
+    # connect [Actor, :port] => [Actor2, :port2] , fifo
+    def connect hash, fifo = :fifo10
+      hash.first do |src,dst|
+        source, sink = src[0], src[1]
+        actors[source.actor.name]=source.actor
+        @actors[ sink.actor.name ]=sink.actor
+        channel=(fifo==:csp) ? CspChannel.new(source, sink) : KpnChannel.new(source,sink, capacity(fifo))
+        source.channel=channel
+        sink.channel=channel
+      end
     end
 
     def connect_as moc_sym,source_sink_h
@@ -142,6 +198,34 @@ module MTS
       channel=(moc_sym==:csp) ? CspChannel.new(source, sink) : KpnChannel.new(source,sink, capacity(moc_sym))
       source.channel=channel
       sink.channel=channel
+
+      #puts "SOURCE"
+      #pp source
+
+      #puts "SINK"
+      #pp sink
+
+      # ugly but for now I dont have the time to rework the Port class
+      sourcePort = :undefined
+      source.actor.ports.each do |key, val|
+        #puts "SOURCE KEY/VAL : (#{key} , #{val})"
+        if val == source
+          sourcePort = key
+        end
+      end
+
+      sinkPort = :undefined
+      sink.actor.ports.each do |key, val|
+        #puts "SINK KEY/VAL : (#{key} , #{val})"
+        if val == sink
+          sinkPort = key
+        end
+      end
+
+      @connexions << [
+          { :ename => source.actor.name, :port => sourcePort },
+          { :ename => sink.actor.name, :port => sinkPort }
+      ]
     end
 
     def capacity(moc)
