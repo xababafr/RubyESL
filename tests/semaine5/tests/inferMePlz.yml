@@ -5,15 +5,16 @@
     :direction: :output
     :type: &1
     - &2 !ruby/class 'Integer'
-    :value: 9
-    :typeObj: !ruby/object:MTS::SingleType
+    - &4 !ruby/class 'Float'
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
       val: *1
   - :symbol: :o2
     :direction: :output
     :type:
     - &3
       - *2
-      - &6 !ruby/class 'String'
+      - &7 !ruby/class 'String'
     :value: :nil
     :typeObj: !ruby/object:MTS::ArrayType
       val: *3
@@ -21,55 +22,57 @@
   :Processing:
   - :symbol: :e1
     :direction: :input
-    :type: &4
-    - *2
-    :value: 9
-    :typeObj: !ruby/object:MTS::SingleType
-      val: *4
-  - :symbol: :e2
-    :direction: :input
     :type: &5
     - *2
-    :value: 9
-    :typeObj: !ruby/object:MTS::SingleType
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
       val: *5
-  - :symbol: :e3
+  - :symbol: :e2
     :direction: :input
-    :type:
-    - &7
-      - *2
-      - *6
-    :value: :nil
-    :typeObj: !ruby/object:MTS::ArrayType
-      val: *7
-      size: 3
-  - :symbol: :e4
+    :type: &6
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *6
+  - :symbol: :e3
     :direction: :input
     :type:
     - &8
       - *2
-      - *6
+      - *7
     :value: :nil
     :typeObj: !ruby/object:MTS::ArrayType
       val: *8
       size: 3
+  - :symbol: :e4
+    :direction: :input
+    :type:
+    - &9
+      - *2
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *9
+      size: 3
   - :symbol: :o
     :direction: :output
-    :type: &9
-    - &10 !ruby/class 'UselessClass'
-    - *2
-    :value: 72
+    :type: &10
+    - &11 !ruby/class 'UselessClass'
+    - *4
+    :value: 86.4
     :typeObj: !ruby/object:MTS::UnionType
-      val: *9
+      val: *10
   :Actuator:
   - :symbol: :e
     :direction: :input
-    :type: &11
-    - *10
-    - *2
-    :value: 72
+    :type: &12
+    - *11
+    - *4
+    :value: 86.4
     :typeObj: !ruby/object:MTS::UnionType
-      val: *11
+      val: *12
 :VARIABLES:
   :sens1:
     :x: !ruby/object:MTS::SingleType
@@ -78,7 +81,7 @@
     :y: !ruby/object:MTS::ArrayType
       val:
       - *2
-      - *6
+      - *7
       size: 3
   :sens2:
     :x: !ruby/object:MTS::SingleType
@@ -87,30 +90,32 @@
     :y: !ruby/object:MTS::ArrayType
       val:
       - *2
-      - *6
+      - *7
       size: 3
   :proc1:
     :accu: !ruby/object:MTS::SingleType
       val:
       - *2
-    :v1: !ruby/object:MTS::SingleType
+    :v1: !ruby/object:MTS::UnionType
       val:
       - *2
-    :v2: !ruby/object:MTS::SingleType
+      - *4
+    :v2: !ruby/object:MTS::UnionType
       val:
       - *2
+      - *4
     :v3: !ruby/object:MTS::ArrayType
       val:
       - *2
-      - *6
+      - *7
       size: 3
     :v4: !ruby/object:MTS::ArrayType
       val:
       - *2
-      - *6
+      - *7
       size: 3
   :actu1:
     :v: !ruby/object:MTS::UnionType
       val:
-      - *10
-      - *2
+      - *11
+      - *4

@@ -62,7 +62,7 @@ if $PROGRAM_NAME == __FILE__
   }
 
   File.open(filename.split('.')[0]+'.yml','w'){|f| f.puts(YAML.dump($TYPESDATA))}
-  File.delete('TEMP'+filename)
+  #File.delete('TEMP'+filename)
 
 
 end

@@ -10,7 +10,9 @@ class Sensor < MTS::Actor
   output :o1, :o2
   def behavior
     x=0
+register(:x,x)
     y = [1,2,"3"]
+register(:y,y)
     while true
       send!(x,:o1)
       send!(y,:o2)
@@ -24,13 +26,17 @@ class Processing < MTS::Actor
   input  :e1, :e2, :e3, :e4
   output :o
   def behavior
-    accu = 0
-    accu += 1
+    accu=0
+register(:accu,accu)
     while true
       v1=receive?(:e1)
+register(:v1,v1)
       v2=receive?(:e2)
+register(:v2,v2)
       v3=receive?(:e3)
+register(:v3,v3)
       v4=receive?(:e4)
+register(:v4,v4)
       accu+=v1+v2
 
       #testing union type
@@ -48,6 +54,7 @@ class Actuator < MTS::Actor
   def behavior
     while true
       v=receive?(:e)
+register(:v,v)
       puts "actuating with value #{v}"
       puts "cycle #{now}"
     end
@@ -56,9 +63,13 @@ end
 
 sys=MTS::System.new("sys1") do
     sensor_1 = Sensor.new("sens1")
+register(:sensor_1,sensor_1)
     sensor_2 = Sensor.new("sens2")
+register(:sensor_2,sensor_2)
     compute  = Processing.new("proc1")
+register(:compute,compute)
     actuator = Actuator.new("actu1")
+register(:actuator,actuator)
 
     # here lies the order of the actors for now
     set_actors([sensor_1,sensor_2, compute, actuator])
