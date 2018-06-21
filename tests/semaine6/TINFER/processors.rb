@@ -1,33 +1,16 @@
-require 'yaml'
 require 'parser/current'
 
-require_relative "../libDyn/mts_simulator"
-require_relative "../libDyn/mts_actors_model"
-require_relative "../libDyn/mts_actors_sim"
-
-if $PROGRAM_NAME == __FILE__
-
-
-
-  filename, iterations=ARGV[0], ARGV[1]
-  raise "need a file !" if filename.nil?
-  raise "need a number of iterations !" if iterations.nil?
-
-  ########################################################
-  ######## step1 = generate the intermediate file ########
-  ########################################################
-  code = File.read(filename)
-  parsed_code = Parser::CurrentRuby.parse(code)
+module TINFER
 
   class MyProcessor < AST::Processor
     def handler_missing node
-  		#puts "you're missing the #{node.type} node"
+      #puts "you're missing the #{node.type} node"
       node.children.each do |child|
         if child.is_a? AST::Node
           process(child)
         end
       end
-  	end
+    end
   end
 
   # find the classes of the code and creates a ClassProcessor for eahc one
@@ -38,14 +21,14 @@ if $PROGRAM_NAME == __FILE__
       @classes = {}
     end
 
-  	def on_class node
+    def on_class node
       #pp node
       puts "////#{node.children[0].children[1]}/////"
       puts "________________________________"
       classes_processor = ClassesProcessor.new
       classes_processor.process node
       @classes[node.children[0].children[1]] = classes_processor.vars
-  	end
+    end
   end
 
   # find each variable of the class
@@ -77,12 +60,13 @@ if $PROGRAM_NAME == __FILE__
   end
 
   # represents a begin blocks. Is able to tell if it contains a given var
-  class BeginBlockProcessor < Parser::TreeRewriter
+  class BeginBlockProcessor < AST::Processor
     # so we can define SExpressions
     include AST::Sexp
 
-    def initialize node, varsToCheck
+    def initialize node, varsToCheck, registerCalls
       @varsToCheck = varsToCheck
+      @registerCalls = registerCalls
       #@varIsHere = var_appears node, varSymbol
       @subBegins = []
 
@@ -93,24 +77,22 @@ if $PROGRAM_NAME == __FILE__
 
       varsToCheck.each do |varSymbol|
         if var_appears(node, varSymbol)
-          #puts "LOCATION : #{node.children[-1].location}"
-          #createRegisterCall(varSymbol)
-          #insert_after( node.children[-1].location, createRegisterCall(varSymbol) )
-          #newChildrenArray = node.children.dup()
-          #newChildrenArray << createRegisterCall(varSymbol)
-          #node = node.updated(node.type, newChildrenArray)
-          #node.children << createRegisterCall(varSymbol)
+          puts "last line(#{varSymbol}) : #{node.children[-1].location.expression.last_line}"
+          lineNb = node.children[-1].location.expression.last_line
+          createRegisterCall(lineNb, varSymbol)
         end
       end
     end
 
     # creates the line of code : register(:symbol, symbol)
-    def createRegisterCall symbol
+    def createRegisterCall lineNb, symbol
       puts "REGISTERCALL"
-      s(:send, nil, :register,
-        s(:sym, symbol),
-        s(:lvar, symbol)
-      )
+      # s(:send, nil, :register,
+      #   s(:sym, symbol),
+      #   s(:lvar, symbol)
+      # )
+      @registerCalls[lineNb] ||= []
+      @registerCalls[lineNb] << "register(:#{symbol}, #{symbol})\n"
     end
 
     # takes a node as an input, and returns true if the node contains the var, false otherwise
@@ -134,17 +116,17 @@ if $PROGRAM_NAME == __FILE__
     end
 
     def on_begin node
-      @subBegins << BeginBlockProcessor.new(node, @varsToCheck)
+      @subBegins << BeginBlockProcessor.new(node, @varsToCheck, @registerCalls)
     end
 
     def handler_missing node
-  		#puts "you're missing the #{node.type} node"
+      #puts "you're missing the #{node.type} node"
       node.children.each do |child|
         if child.is_a? AST::Node
           process(child)
         end
       end
-  	end
+    end
   end
 
   # add the variable probes/sensors to the ast
@@ -152,9 +134,11 @@ if $PROGRAM_NAME == __FILE__
     # so we can define SExpressions
     include AST::Sexp
 
-    def initialize classesVars, buffer
+    attr_reader :registerCalls
+
+    def initialize classesVars
       @classes = classesVars
-      @buffer = buffer
+      @registerCalls = {}
     end
 
     def on_class(node)
@@ -173,12 +157,12 @@ if $PROGRAM_NAME == __FILE__
         # well.... kinda...
         if node.children[2].is_a?(AST::Node) && node.children[2].type == :begin
           # we create a beginBlockProcessor that will alter the child's ast
-          BeginBlockProcessor.new node.children[2], @classes[@currentClass][@currentMethod]
+          BeginBlockProcessor.new node.children[2], @classes[@currentClass][@currentMethod], @registerCalls
         else
           node.children[2].children.each do |child|
             if child.is_a?(AST::Node) && child.type == :begin
               # we create a beginBlockProcessor that will alter the child's ast
-              BeginBlockProcessor.new child, @classes[@currentClass][@currentMethod]
+              BeginBlockProcessor.new child, @classes[@currentClass][@currentMethod], @registerCalls
             end
           end
         end
@@ -224,7 +208,7 @@ if $PROGRAM_NAME == __FILE__
           process(child)
         end
       end
-  	end
+    end
 
     # creates the line of code : register(:symbol, symbol)
     def createRegister symbol
@@ -234,66 +218,5 @@ if $PROGRAM_NAME == __FILE__
       )
     end
   end
-
-
-  code_processor = CodeProcessor.new
-  code_processor.process(parsed_code)
-  puts "NANANANANAANANAAAAAAAAAAAAAA"
-  pp code_processor.classes
-  puts "\n\n\n\n\n\n"
-  puts "________________________________\n"
-
-  # probiusOP
-  probius = AddProbesProcessor.new code_processor.classes
-  probius.process(parsed_code)
-  #pp probius.createRegister :accu
-
-
-  # while (line = file.gets)
-  #   output += line
-  #   splitted = line.split('=')
-  #   # if there is an assign
-  #   if splitted.size == 2
-  #     begin
-  #       if Parser::CurrentRuby.parse(line).to_s[0..6] == "(lvasgn"
-  #       # we add a call to register
-  #       # /!\ WE SUPPOSED ITS NOT AN ARRAY!!
-  #       # TO BE ADDED LATER ON IN THE PROGRAM
-  #         output += "register(:#{splitted[0].strip},#{splitted[0].strip})\n"
-  #       end
-  #     rescue
-  #
-  #     end
-  #   end
-  # end
-  # file.close
-  # File.open("TEMP#{filename}",'w'){|f| f.puts(output)}
-
-
-  ########################################################
-  ### step2 = generate the types content in a yam file ###
-  ########################################################
-  # simulator=MTS::Simulator.new
-  # simulator.open("TEMP"+filename)
-  #
-  # $inouts = simulator.system.inouts
-  # $connexions = simulator.system.connexions
-  #
-  # simulator.simulate simulator.system, iterations.to_i
-  #
-  # $variables = {}
-  #
-  # simulator.system.ordered_actors.each do |actor|
-  #   $variables[actor.name.to_sym] = actor.vars
-  # end
-  #
-  # $TYPESDATA = {
-  #   :INOUTS => $inouts,
-  #   :VARIABLES => $variables
-  # }
-  #
-  # File.open(filename.split('.')[0]+'.yml','w'){|f| f.puts(YAML.dump($TYPESDATA))}
-  # File.delete('TEMP'+filename)
-
 
 end

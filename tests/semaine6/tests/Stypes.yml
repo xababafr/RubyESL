@@ -1,0 +1,17 @@
+---
+? - :Sensor
+  - :test2
+: {}
+? - :Sensor
+  - :test
+: :a: MTS::FloatLit
+  :b: MTS::IntLit
+  :c: MTS::IntLit
+? - :Sensor
+  - :behavior
+: :a: MTS::FloatLit
+  :b: MTS::IntLit
+  :c: MTS::IntLit
+  :d: MTS::FloatLit | MTS::StrLit
+  :e: MTS::Ary[3][MTS::IntLit | MTS::FloatLit | MTS::StrLit]
+  :v: MTS::FloatLit

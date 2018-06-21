@@ -1,9 +1,9 @@
 require 'yaml'
 require 'parser/current'
 
-require_relative "../libDyn/mts_simulator"
-require_relative "../libDyn/mts_actors_model"
-require_relative "../libDyn/mts_actors_sim"
+require_relative "../MTS/mts_simulator"
+require_relative "../MTS/mts_actors_model"
+require_relative "../MTS/mts_actors_sim"
 
 if $PROGRAM_NAME == __FILE__
 
@@ -277,23 +277,23 @@ if $PROGRAM_NAME == __FILE__
   simulator=MTS::Simulator.new
   simulator.open("TEMP"+filename)
 
-  $inouts = simulator.system.inouts
-  $connexions = simulator.system.connexions
+  #$inouts = simulator.system.inouts
+  #$connexions = simulator.system.connexions
 
   simulator.simulate simulator.system, iterations.to_i
 
-  $variables = {}
+  variables = {}
 
   simulator.system.ordered_actors.each do |actor|
-    $variables[actor.name.to_sym] = actor.vars
+    variables[actor.name.to_sym] = actor.vars
   end
 
-  $TYPESDATA = {
-    :INOUTS => $inouts,
-    :VARIABLES => $variables
+  TYPESDATA = {
+    :INOUTS => simulator.system.inouts,
+    :VARIABLES => variables
   }
 
-  File.open(filename.split('.')[0]+'.yml','w'){|f| f.puts(YAML.dump($TYPESDATA))}
+  File.open(filename.split('.')[0]+'.yml','w'){|f| f.puts(YAML.dump(TYPESDATA))}
   File.delete('TEMP'+filename)
 
 

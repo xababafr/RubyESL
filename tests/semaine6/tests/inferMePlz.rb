@@ -1,4 +1,4 @@
-require "../libDyn/mts_actors_model"
+require "../MTS/mts_actors_model"
 
 class UselessClass
   def initialize
