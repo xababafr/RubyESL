@@ -9,10 +9,10 @@ module MTS
       puts "root"
       node.methods.each do |mname, method|
         puts "=================#{mname.to_s}=================="
-        if mname[1] == :behavior
-          DATA.currentContext = mname
-          method.accept self # unless method.nil?
-        end
+        #if mname[1] == :behavior
+        DATA.currentContext = mname
+        method.accept self # unless method.nil?
+        #end
       end
     end
 

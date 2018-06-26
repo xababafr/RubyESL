@@ -51,7 +51,7 @@ module MTS
       # we start the visitor
       root.accept visitor
 
-      #pp DATA
+      pp DATA.contexts
 
     end
 

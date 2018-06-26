@@ -4,8 +4,6 @@ module MTS
 
 
   # on separe le traitement a faire sur chaque node de la maniere dont les parcourir
-  # on type chaque node. Pour la plupart, il s'agit simplement du nom de leur classe.
-  # mais pour certaines nodes, un traitement est effectue
   class StaticInfer < Visitor
     def basic_type node
       node.type = node.class.name
@@ -13,7 +11,13 @@ module MTS
 
     def visitRoot node
       puts "root"
-      basic_type node
+      node.methods.each do |mname, method|
+        puts "=================#{mname.to_s}=================="
+        if mname[1] == :behavior
+          DATA.currentContext = mname
+          method.accept self # unless method.nil?
+        end
+      end
     end
 
     def visitUnknown node
@@ -23,46 +27,53 @@ module MTS
 
     def visitMethod node
       puts "method"
+      node.body.accept self unless node.body.nil?
       basic_type node
     end
 
     def visitBody node
       puts "body"
-      node.type = node.stmts[0].type
+      node.stmts.each do |el|
+        el.accept self unless el.nil?
+      end
+      node.type = node.stmts[0].accept self
     end
 
     def visitAssign node
       puts "assign"
-      # puts node.lhs
-      # puts DATA.contexts
-      # puts DATA.currentContext
-      node.rhs.accept StaticInfer.new
-      DATA.contexts[DATA.currentContext][node.lhs] = node.rhs.type
-      node.type = node.rhs.type
+      node.rhs.accept self unless node.rhs.nil?
+      node.type = DATA.contexts[DATA.currentContext][node.lhs] = node.rhs.accept self
     end
 
     def visitIf node
       puts "if"
+      node.body.accept self unless node.body.nil?
+      node.else_.accept self unless node.else_.nil?
       basic_type node
     end
 
     def visitWhile node
       puts "while"
+      node.body.accept self unless node.body.nil?
       basic_type node
     end
 
     def visitFor node
       puts "for"
+      node.body.accept self unless node.body.nil?
       basic_type node
     end
 
     def visitCase node
       puts "case"
+      node.whens.accept self unless node.whens.nil?
+      node.else_.accept self unless node.else_.nil?
       basic_type node
     end
 
     def visitWhen node
       puts "when"
+      node.body.accept self unless node.body.nil?
       basic_type node
     end
 
@@ -72,7 +83,6 @@ module MTS
       oldcontext = nil
       newContext = nil
       retType = nil
-      node.caller.accept StaticInfer.new
       DATA.contexts.keys.each do |key|
         # for now, we just check with the name
         # if we are a user defined method :
@@ -83,25 +93,27 @@ module MTS
       end
       argsTypes = []
       node.args.each do |arg|
-        argsTypes << arg.type
+        argsTypes << arg.accept(self)
       end
 
       if !userDefinedMethod
 
-        callerType = node.caller.type
+        puts "/////////#{node.method}/////////////"
+        #puts "/////////#{node.caller.accept(self)}/////////////"
+        callerType = node.caller.accept(self) unless node.caller.nil?
         # 'caller.methodname' 'argsTypes'
         puts "\n\n"
-        puts callerType+"."+node.method.to_s
+        puts callerType.to_s+"."+node.method.to_s
+        puts argsTypes
 
         # return the type corresponding the the signature
-        retType = DATA.signatures[callerType+"."+node.method.to_s][argsTypes]
+        retType = DATA.signatures[callerType.to_s+"."+node.method.to_s][argsTypes]
 
       else
 
         puts "userDefinedMethod"
         oldContext = DATA.currentContext.dup
         DATA.currentContext = newContext
-        recursiveVisitor = StaticInfer.new
         #pp DATA.methods
         DATA.methods.values.each do |met|
           if met.name == node.method
@@ -114,7 +126,7 @@ module MTS
             pp DATA.contexts
 
             # then explore it
-            met.accept recursiveVisitor
+            met.accept self
             puts "RETURN TYPES"
             pp DATA.returnTypes
 
@@ -128,14 +140,17 @@ module MTS
       end
 
       if retType.kind_of?(Array)
-        node.type = retType.join(" | ")
+        retType.join(" | ")
       else
-        node.type = retType
+        retType
       end
     end
 
     def visitDStr node
       puts "dstr"
+      node.elements.each do |el|
+        el.accept self unless el.nil?
+      end
       basic_type node
     end
 
@@ -168,8 +183,7 @@ module MTS
       puts "ary"
       types = []
       node.elements.each do |el|
-        el.accept StaticInfer.new
-        cType = el.type
+        cType = el.accept self
         unless types.include? cType
           types << cType
         end
@@ -189,11 +203,10 @@ module MTS
 
     def visitReturn node
       puts "return"
-      puts "regexp"
-      node.value.accept StaticInfer.new
-      typ = node.value.type
+      node.value.accept self unless node.value.nil?
+      typ = node.value.accept self
       oldType = DATA.returnTypes[DATA.currentContext]
-      if oldType != nil && oldType.size > 0
+      if oldType.size > 0
         union = true
         oldType.each do |type|
           if type == typ
@@ -207,9 +220,7 @@ module MTS
         DATA.returnTypes[DATA.currentContext] << typ
       end
       puts "RETURN TYPE REACHED"
-      pp DATA.returnTypes
-
-      # we still only return the name's class
+      #pp DATA.returnTypes
       basic_type node
     end
 

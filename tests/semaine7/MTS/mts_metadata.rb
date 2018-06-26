@@ -30,6 +30,10 @@ module MTS
       ["MTS::IntLit"] => "MTS::FloatLit",
       ["MTS::FloatLit"] => "MTS::FloatLit",
     },
+    ".puts" => {
+      ["MTS::Dstr"] => "MTS::StrLit",
+      ["MTS::Str"] => "MTS::StrLit",
+    }
   }
 
 end
