@@ -31,8 +31,8 @@ module MTS
       ["MTS::FloatLit"] => "MTS::FloatLit",
     },
     ".puts" => {
-      ["MTS::Dstr"] => "MTS::StrLit",
-      ["MTS::Str"] => "MTS::StrLit",
+      ["MTS::Dstr"] => "",
+      ["MTS::Str"] => "",
     }
   }
 

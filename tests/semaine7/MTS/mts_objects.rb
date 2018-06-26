@@ -188,6 +188,8 @@ module MTS
   end
 
   class IntLit < Ast
+    attr_accessor :value
+
     def initialize val
       @value=val
     end
@@ -198,6 +200,8 @@ module MTS
   end
 
   class FloatLit < Ast
+    attr_accessor :value
+
     def initialize val
       @value=val
     end
@@ -208,6 +212,8 @@ module MTS
   end
 
   class StrLit < Ast
+    attr_accessor :value
+
     def initialize val
       @value=val
     end
@@ -218,6 +224,8 @@ module MTS
   end
 
   class IRange < Ast
+    attr_accessor :lhs, :rhs
+
     def initialize l,r
       @lhs,@rhs=l,r
     end
@@ -229,6 +237,7 @@ module MTS
 
   class Ary < Ast
     attr_accessor :elements
+
     def initialize elements=[]
       @elements=elements
     end
@@ -267,6 +276,7 @@ module MTS
 
   class Sym < Ast
     attr_accessor :value
+
     def initialize value
       @value = value
     end

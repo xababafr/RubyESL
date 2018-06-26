@@ -53,6 +53,9 @@ module MTS
 
       pp DATA.contexts
 
+      #puts visitor.code.finalize unless visitor.code.nil?
+      puts visitor.code.get_source
+
     end
 
   end

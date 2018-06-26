@@ -21,8 +21,8 @@ module MTS
     end
 
     def visitUnknown node
-        puts "unknown"
-        basic_type node
+      puts "unknown"
+      basic_type node
     end
 
     def visitMethod node

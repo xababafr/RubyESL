@@ -22,6 +22,7 @@ class Sensor < MTS::Actor
       a=3.14
       b=2
       c=3
+      3+4
       d=test a,c
       e = [1,2.4,"10"]
       v=a*(b+c)
