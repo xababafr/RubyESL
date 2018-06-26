@@ -55,8 +55,9 @@ module TINFER
       end
 
       typesdata = {
-        :INOUTS => simulator.system.inouts,
-        :VARIABLES => variables
+        :INOUTS     => simulator.system.inouts,
+        :VARIABLES  => variables,
+        :CONNEXIONS => simulator.system.connexions
       }
 
       File.open(filename+'.yml','w'){|f| f.puts(YAML.dump(typesdata))}

@@ -12,6 +12,9 @@ module MTS
       @sys=evaluate(filename)
       @ast=parse()
       build_hash_code_for_classes # @class_code_h[:Sensor]=...
+
+      pp @class_code_h
+
       #puts "HASH FOR CLASSES"
       #pp @class_code_h
       @class_code_h.keys.each do |klass|

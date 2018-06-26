@@ -127,3 +127,44 @@
       val:
       - *12
       - *4
+:CONNEXIONS:
+- - :ename: :sens1
+    :cname: :Sensor
+    :port: :o1
+    :moc: :fifo5
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e1
+    :moc: :fifo5
+- - :ename: :sens2
+    :cname: :Sensor
+    :port: :o1
+    :moc: :fifo2
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e2
+    :moc: :fifo2
+- - :ename: :sens1
+    :cname: :Sensor
+    :port: :o2
+    :moc: :fifo5
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e3
+    :moc: :fifo5
+- - :ename: :sens2
+    :cname: :Sensor
+    :port: :o2
+    :moc: :fifo5
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e4
+    :moc: :fifo5
+- - :ename: :proc1
+    :cname: :Processing
+    :port: :o
+    :moc: :fifo4
+  - :ename: :actu1
+    :cname: :Actuator
+    :port: :e
+    :moc: :fifo4
