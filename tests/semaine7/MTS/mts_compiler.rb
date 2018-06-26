@@ -46,7 +46,7 @@ module MTS
       end
 
       # we make a first, basic typing
-      root.accept BasicTyping.new
+      # root.accept BasicTyping.new
 
       # we start the visitor
       root.accept visitor

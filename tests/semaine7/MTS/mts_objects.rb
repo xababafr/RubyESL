@@ -39,13 +39,6 @@ module MTS
 
     def accept visitor
       visitor.visitRoot self
-      @methods.each do |mname, method|
-        puts "=================#{mname.to_s}=================="
-        if mname[1] == :behavior
-          DATA.currentContext = mname
-          method.accept visitor # unless method.nil?
-        end
-      end
     end
   end
 
@@ -58,7 +51,6 @@ module MTS
 
     def accept visitor
       visitor.visitMethod self
-      @body.accept visitor unless @body.nil?
     end
   end
 
@@ -71,9 +63,6 @@ module MTS
 
     def accept visitor
       visitor.visitBody self
-      @stmts.each do |el|
-        el.accept visitor unless el.nil?
-      end
     end
   end
 
@@ -86,7 +75,6 @@ module MTS
 
     def accept visitor
       visitor.visitAssign self
-      @rhs.accept visitor unless @rhs.nil?
     end
   end
 
@@ -99,8 +87,6 @@ module MTS
 
     def accept visitor
       visitor.visitIf self
-      @body.accept visitor unless @body.nil?
-      @else_.accept visitor unless @else_.nil?
     end
   end
 
@@ -113,7 +99,6 @@ module MTS
 
     def accept visitor
       visitor.visitWhile self
-      @body.accept visitor unless @body.nil?
     end
   end
 
@@ -126,7 +111,6 @@ module MTS
 
     def accept visitor
       visitor.visitFor self
-      @body.accept visitor unless @body.nil?
     end
   end
 
@@ -139,8 +123,6 @@ module MTS
 
     def accept visitor
       visitor.visitCase self
-      @whens.accept visitor unless @whens.nil?
-      @else_.accept visitor unless @else_.nil?
     end
   end
 
@@ -153,7 +135,6 @@ module MTS
 
     def accept visitor
       visitor.visitWhen self
-      @body.accept visitor unless @body.nil?
     end
   end
 
@@ -166,9 +147,6 @@ module MTS
 
     def accept visitor
       visitor.visitDStr self
-      @elements.each do |el|
-        el.accept visitor unless el.nil?
-      end
     end
   end
 
@@ -180,7 +158,6 @@ module MTS
 
     def accept visitor
       visitor.visitReturn self
-      @value.accept visitor unless @value.nil?
     end
   end
 

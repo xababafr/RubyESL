@@ -7,6 +7,13 @@ module MTS
   class PrettyPrinter < Visitor
     def visitRoot node
       puts "root"
+      node.methods.each do |mname, method|
+        puts "=================#{mname.to_s}=================="
+        if mname[1] == :behavior
+          DATA.currentContext = mname
+          method.accept self # unless method.nil?
+        end
+      end
     end
 
     def visitUnknown node
@@ -15,34 +22,46 @@ module MTS
 
     def visitMethod node
       puts "method"
+      node.body.accept self unless node.body.nil?
     end
 
     def visitBody node
       puts "body"
+      node.stmts.each do |el|
+        el.accept self unless el.nil?
+      end
     end
 
     def visitAssign node
       puts "assign"
+      node.rhs.accept self unless node.rhs.nil?
     end
 
     def visitIf node
       puts "if"
+      node.body.accept self unless node.body.nil?
+      node.else_.accept self unless node.else_.nil?
     end
 
     def visitWhile node
       puts "while"
+      node.body.accept self unless node.body.nil?
     end
 
     def visitFor node
       puts "for"
+      node.body.accept self unless node.body.nil?
     end
 
     def visitCase node
       puts "case"
+      node.whens.accept self unless node.whens.nil?
+      node.else_.accept self unless node.else_.nil?
     end
 
     def visitWhen node
       puts "when"
+      node.body.accept self unless node.body.nil?
     end
 
     def visitMCall node
@@ -51,6 +70,9 @@ module MTS
 
     def visitDStr node
       puts "dstr"
+      node.elements.each do |el|
+        el.accept self unless el.nil?
+      end
     end
 
     def visitLVar node
@@ -87,6 +109,7 @@ module MTS
 
     def visitReturn node
       puts "return"
+      node.value.accept self unless node.value.nil?
     end
 
     def visitConst node
