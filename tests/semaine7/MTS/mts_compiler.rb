@@ -16,6 +16,7 @@ require_relative "./mts_metadata"
 
 require_relative "./basic_typing"
 require_relative "./pretty_printer"
+require_relative "./add_probes"
 require_relative "./static_infer"
 
 module MTS

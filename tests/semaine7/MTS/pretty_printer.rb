@@ -40,8 +40,14 @@ module MTS
     def visitBody node
       puts "body"
       @code << "("
+      if node.methodBody
+        @code.newline
+      end
       node.stmts.each do |el|
         el.accept self unless el.nil?
+      end
+      if node.methodBody
+        @code.newline
       end
       @code << ")"
     end
@@ -82,6 +88,8 @@ module MTS
 
     def visitFor node
       puts "for"
+      # make sure this works
+      node.idx ||= "i"
       @code.newline
       @code << "for #{node.idx} in ("
       node.range.accept self unless node.range.nil?
@@ -115,7 +123,10 @@ module MTS
         node.caller.accept self
         @code << ".#{node.method}("
       end
-      node.args.each do |arg|
+      node.args.each_with_index do |arg,idx|
+        if idx !=  0
+          @code << ", "
+        end
         arg.accept self
       end
       @code << ")"
@@ -126,9 +137,12 @@ module MTS
       puts "dstr"
       node.elements.each_with_index do |el,idx|
         if idx != 0
-          @code << "+"
+          @code << " + "
         end
         el.accept self unless el.nil?
+        if !(el.is_a? StrLit)
+          @code << ".to_s"
+        end
       end
     end
 

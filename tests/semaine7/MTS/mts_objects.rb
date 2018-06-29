@@ -55,10 +55,11 @@ module MTS
   end
 
   class Body < Ast
-    attr_accessor :stmts
+    attr_accessor :stmts, :methodBody
 
-    def initialize stmts=[]
+    def initialize stmts=[], methodBody = false
       @stmts=stmts
+      @methodBody = methodBody
     end
 
     def accept visitor

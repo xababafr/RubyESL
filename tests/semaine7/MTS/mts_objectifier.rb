@@ -13,20 +13,20 @@ module MTS
         end
       end
 
-      def parse_body body
+      def parse_body body, methodBody = false
         if body != nil && body.type==:begin
           stmts=body.children.collect{|stmt| to_object(stmt)}
         else
           stmts=[]
           stmts << to_object(body)
         end
-        Body.new(stmts)
+        Body.new(stmts, methodBody)
       end
 
       def parse_method sexp, key
         name,args,body=*sexp.children[0..2]
         args=args.children.collect{|e| e.children.first}
-        body=parse_body(body)
+        body=parse_body(body, true)
         met = Method.new(name,args,body)
         @methods_objects[key] = met
       end
