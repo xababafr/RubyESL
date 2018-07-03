@@ -20,6 +20,10 @@ class Visitor
     raise NotImplementedError.new
   end
 
+  def visitOpAssign node
+    raise NotImplementedError.new
+  end
+
   def visitIf node
     raise NotImplementedError.new
   end

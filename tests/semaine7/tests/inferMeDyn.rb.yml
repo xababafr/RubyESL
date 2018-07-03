@@ -1,0 +1,318 @@
+---
+:INOUTS:
+  :Sensor:
+  - :symbol: :o1
+    :direction: :output
+    :type: &1
+    - &2 !ruby/class 'Integer'
+    - &4 !ruby/class 'Float'
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *1
+  - :symbol: :o2
+    :direction: :output
+    :type:
+    - &3
+      - *2
+      - &6 !ruby/class 'String'
+      - &7 !ruby/class 'Array'
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *3
+      size: 4
+  - :symbol: :o1
+    :direction: :output
+    :type: &5
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *5
+  - :symbol: :o2
+    :direction: :output
+    :type:
+    - &8
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *8
+      size: 4
+  - :symbol: :o1
+    :direction: :output
+    :type: &9
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *9
+  - :symbol: :o2
+    :direction: :output
+    :type:
+    - &10
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *10
+      size: 4
+  :Processing:
+  - :symbol: :e1
+    :direction: :input
+    :type: &11
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *11
+  - :symbol: :e2
+    :direction: :input
+    :type: &12
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *12
+  - :symbol: :e3
+    :direction: :input
+    :type:
+    - &13
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *13
+      size: 4
+  - :symbol: :e4
+    :direction: :input
+    :type:
+    - &14
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *14
+      size: 4
+  - :symbol: :e1
+    :direction: :input
+    :type: &15
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *15
+  - :symbol: :e2
+    :direction: :input
+    :type: &16
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *16
+  - :symbol: :e3
+    :direction: :input
+    :type:
+    - &17
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *17
+      size: 4
+  - :symbol: :e4
+    :direction: :input
+    :type:
+    - &18
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *18
+      size: 4
+  - :symbol: :e1
+    :direction: :input
+    :type: &19
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *19
+  - :symbol: :e2
+    :direction: :input
+    :type: &20
+    - *2
+    - *4
+    :value: 10.799999999999999
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *20
+  - :symbol: :e3
+    :direction: :input
+    :type:
+    - &21
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *21
+      size: 4
+  - :symbol: :e4
+    :direction: :input
+    :type:
+    - &22
+      - *2
+      - *6
+      - *7
+    :value: :nil
+    :typeObj: !ruby/object:MTS::ArrayType
+      val: *22
+      size: 4
+  - :symbol: :o
+    :direction: :output
+    :type: &23
+    - &24 !ruby/class 'UselessClass'
+    - *4
+    :value: 87.4
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *23
+  - :symbol: :o
+    :direction: :output
+    :type: &25
+    - *24
+    - *4
+    :value: 87.4
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *25
+  - :symbol: :o
+    :direction: :output
+    :type: &26
+    - *24
+    - *4
+    :value: 87.4
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *26
+  :Actuator:
+  - :symbol: :e
+    :direction: :input
+    :type: &27
+    - *24
+    - *4
+    :value: 87.4
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *27
+  - :symbol: :e
+    :direction: :input
+    :type: &28
+    - *24
+    - *4
+    :value: 87.4
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *28
+  - :symbol: :e
+    :direction: :input
+    :type: &29
+    - *24
+    - *4
+    :value: 87.4
+    :typeObj: !ruby/object:MTS::UnionType
+      val: *29
+:VARIABLES:
+  :sens1:
+    :x: !ruby/object:MTS::UnionType
+      val:
+      - *2
+      - *4
+    :y: !ruby/object:MTS::ArrayType
+      val:
+      - *2
+      - *6
+      - *7
+      size: 4
+  :sens2:
+    :x: !ruby/object:MTS::UnionType
+      val:
+      - *2
+      - *4
+    :y: !ruby/object:MTS::ArrayType
+      val:
+      - *2
+      - *6
+      - *7
+      size: 4
+  :proc1:
+    :accu: !ruby/object:MTS::UnionType
+      val:
+      - *2
+      - *4
+    :v1: !ruby/object:MTS::UnionType
+      val:
+      - *2
+      - *4
+    :v2: !ruby/object:MTS::UnionType
+      val:
+      - *2
+      - *4
+    :v3: !ruby/object:MTS::ArrayType
+      val:
+      - *2
+      - *6
+      - *7
+      size: 4
+    :v4: !ruby/object:MTS::ArrayType
+      val:
+      - *2
+      - *6
+      - *7
+      size: 4
+  :actu1:
+    :v: !ruby/object:MTS::UnionType
+      val:
+      - *24
+      - *4
+:CONNEXIONS:
+- - :ename: :sens1
+    :cname: :Sensor
+    :port: :o1
+    :moc: :fifo5
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e1
+    :moc: :fifo5
+- - :ename: :sens2
+    :cname: :Sensor
+    :port: :o1
+    :moc: :fifo2
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e2
+    :moc: :fifo2
+- - :ename: :sens1
+    :cname: :Sensor
+    :port: :o2
+    :moc: :fifo5
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e3
+    :moc: :fifo5
+- - :ename: :sens2
+    :cname: :Sensor
+    :port: :o2
+    :moc: :fifo5
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :e4
+    :moc: :fifo5
+- - :ename: :proc1
+    :cname: :Processing
+    :port: :o
+    :moc: :fifo4
+  - :ename: :actu1
+    :cname: :Actuator
+    :port: :e
+    :moc: :fifo4

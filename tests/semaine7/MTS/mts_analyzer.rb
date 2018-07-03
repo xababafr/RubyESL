@@ -60,7 +60,7 @@ module MTS
       node.children.each do |child|
         next unless child.class.to_s == "Parser::AST::Node"
         if (child.type==:def)
-          @methods_code_h[ [klass,child.children[0]] ] = child
+          @methods_code_h[ [klass, child.children[0]] ] = child
         else
           rec_get_methods child, klass unless (child == nil)
         end

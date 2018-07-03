@@ -1,4 +1,4 @@
-require_relative "visitor"
+require_relative "./visitors/visitor"
 require_relative "mts_behaviours"
 
 module MTS
@@ -22,23 +22,37 @@ module MTS
 
     def initialize sexp
       @sexp = sexp
+      #puts "UNKNOWN"
+      #pp sexp
     end
 
     def accept visitor
       visitor.visitUnknown self
     end
+
+    def to_s
+      @sexp.to_s
+    end
   end
 
   # the root of everything (starting point of the visitor)
   class Root < Ast
-    attr_accessor :methods
+    attr_accessor :methods, :classes, :sourceCode, :connexions, :ordered_actors
 
-    def initialize methods
+    def initialize methods, system
       @methods = methods
+      @classes = {}
+      @methods.each do |methodArr, methodAst|
+        @classes[ methodArr[0] ] ||= []
+        @classes[ methodArr[0] ] << [ methodArr[1] , methodAst ]
+      end
+      @connexions = system.connexions
+      @ordered_actors = system.ordered_actors
     end
 
     def accept visitor
       visitor.visitRoot self
+      @sourceCode = visitor.code.get_source
     end
   end
 
@@ -55,11 +69,11 @@ module MTS
   end
 
   class Body < Ast
-    attr_accessor :stmts, :methodBody
+    attr_accessor :stmts, :wrapperBody
 
-    def initialize stmts=[], methodBody = false
+    def initialize stmts=[], wrapperBody = false
       @stmts=stmts
-      @methodBody = methodBody
+      @wrapperBody = wrapperBody
     end
 
     def accept visitor
@@ -68,7 +82,7 @@ module MTS
   end
 
   class Assign < Ast
-    attr_accessor :lhs,:rhs
+    attr_accessor :lhs, :rhs, :type
 
     def initialize lhs,rhs
       @lhs,@rhs=lhs,rhs
@@ -76,6 +90,18 @@ module MTS
 
     def accept visitor
       visitor.visitAssign self
+    end
+  end
+
+  class OpAssign < Ast
+    attr_accessor :lhs, :mid, :rhs
+
+    def initialize lhs,mid,rhs
+        @lhs,@mid,@rhs=lhs,mid,rhs
+    end
+
+    def accept visitor
+      visitor.visitOpAssign self
     end
   end
 
@@ -178,7 +204,7 @@ module MTS
   end
 
   class LVar < Ast
-    attr_accessor :name
+    attr_accessor :name, :type
     def initialize name
       @name=name
     end
@@ -267,7 +293,10 @@ module MTS
   end
 
   class Const < Ast
-    def initialize
+    attr_accessor :children
+
+    def initialize children
+      @children = children
     end
 
     def accept visitor

@@ -13,20 +13,21 @@ module MTS
         end
       end
 
-      def parse_body body, methodBody = false
+      def parse_body body
+        puts "PARSE_BODY(#{caller_locations(1,1)[0].label})"
         if body != nil && body.type==:begin
           stmts=body.children.collect{|stmt| to_object(stmt)}
         else
           stmts=[]
           stmts << to_object(body)
         end
-        Body.new(stmts, methodBody)
+        Body.new(stmts)
       end
 
       def parse_method sexp, key
         name,args,body=*sexp.children[0..2]
         args=args.children.collect{|e| e.children.first}
-        body=parse_body(body, true)
+        body=parse_body(body)
         met = Method.new(name,args,body)
         @methods_objects[key] = met
       end
@@ -40,6 +41,8 @@ module MTS
           return parse_assign(sexp,:local)
         when :ivasgn
           return parse_assign(sexp,:instance)
+        when :op_asgn
+          return parse_op_assign(sexp)
         when :if
           return parse_if(sexp)
         when :while
@@ -107,6 +110,11 @@ module MTS
         LVar.new(sexp.children.first)
       end
 
+      def parse_op_assign sexp
+        lhs,mid,rhs=*sexp.children[0..2].collect{|stmt| to_object(stmt)}
+        OpAssign.new(lhs,mid,rhs)
+      end
+
       def parse_assign sexp,locality
         lhs,rhs=*sexp.children[0..1].collect{|stmt| to_object(stmt)}
         Assign.new(lhs,rhs)
@@ -164,7 +172,7 @@ module MTS
       end
 
       def parse_const sexp
-        Const.new
+        Const.new sexp.children
       end
 
       def parse_sym sexp

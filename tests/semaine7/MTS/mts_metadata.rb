@@ -4,7 +4,7 @@ module MTS
 
   # globals for the module
   class MetaData
-    attr_accessor :contexts, :currentContext, :returnTypes, :methods, :signatures, :inouts, :connexions
+    attr_accessor :contexts, :currentContext, :returnTypes, :methods, :signatures, :inouts, :connexions, :dynTypes
     include Singleton
 
     def initialize inouts = nil, connexions = nil
@@ -12,7 +12,7 @@ module MTS
       @contexts, @currentContext, @methods, @returnTypes, @signatures = nil, nil, nil, nil, nil
 
       #static and dynamic
-      @inouts, @connexions = inouts, connexions
+      @inouts, @connexions, @dynTypes = inouts, connexions, nil
     end
   end
 

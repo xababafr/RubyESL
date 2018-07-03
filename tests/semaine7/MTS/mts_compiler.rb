@@ -14,19 +14,19 @@ require_relative "./mts_analyzer"
 require_relative "./mts_objectifier"
 require_relative "./mts_metadata"
 
-require_relative "./basic_typing"
-require_relative "./pretty_printer"
-require_relative "./add_probes"
-require_relative "./static_infer"
+require_relative "./visitors/basic_typing"
+require_relative "./visitors/pretty_printer"
+require_relative "./visitors/add_probes"
+require_relative "./visitors/static_infer"
+require_relative "./visitors/dynamic_infer"
 
 module MTS
 
 
   class Compiler
 
-    def initialize filename, visitor = PrettyPrinter.new, simIterations = 10
-
-      @filename, @visitor, @iterations = filename, visitor, simIterations
+    def initialize filename
+      @filename = filename
 
       analyzer = Analyzer.new
       analyzer.open filename
@@ -34,8 +34,12 @@ module MTS
       objectifier = Objectifier.new analyzer.methods_code_h
       #pp objectifier.methods_objects
 
-      root = Root.new objectifier.methods_objects
-      pp root
+      #simulator=MTS::Simulator.new
+      #simulator.open(@filename)
+      sys = evaluate @filename
+      puts "SYSYSYSYS"
+      pp sys
+      @root = Root.new objectifier.methods_objects, sys
 
       #define the static inference's context
       DATA.contexts = {}
@@ -45,18 +49,64 @@ module MTS
       DATA.methods.keys.each do |key|
         DATA.contexts[key], DATA.returnTypes[key] = {}, []
       end
+    end
+
+    def compile visitor = PrettyPrinter.new #, simIterations = 10
+
+      #@visitor, @iterations = visitor, simIterations
 
       # we make a first, basic typing
       # root.accept BasicTyping.new
 
       # we start the visitor
-      root.accept visitor
+      @root.accept visitor
+      visitor.code.get_source
 
-      pp DATA.contexts
+      #pp DATA.contexts
 
       #puts visitor.code.finalize unless visitor.code.nil?
-      puts visitor.code.get_source
+      #puts visitor.code.get_source
 
+    end
+
+    def compile_static
+      @root.accept StaticInfer.new
+    end
+
+    def compile_dynamic imIterations = 10, probesFilename = "PROBES"
+      # 1/ add the probes
+      #sys = eval(File.read(@filename))
+      #puts "SYYYS"
+      #pp sys
+      @root.accept AddProbes.new
+      File.open("#{probesFilename}.rb", "w") { |f| f.write(@root.sourceCode) }
+
+      # 2/ simulate the new system
+      simulator=MTS::Simulator.new
+      simulator.open("#{probesFilename}.rb")
+      simulator.simulate simulator.system, imIterations.to_i
+
+      variables = {}
+
+      simulator.system.ordered_actors.each do |actor|
+        variables[actor.name.to_sym] = actor.vars
+      end
+
+      typesdata = {
+        :INOUTS     => simulator.system.inouts,
+        :VARIABLES  => variables,
+        :CONNEXIONS => simulator.system.connexions
+      }
+
+      DATA.dynTypes = typesdata
+
+      File.open(@filename+'.yml','w'){|f| f.puts(YAML.dump(typesdata))}
+
+      # 3/ visit the objectified AST again and nest its nodes with inferred types
+      @root.accept DynamicInfer.new
+
+      puts "FINAL AST"
+      pp @root
     end
 
   end
