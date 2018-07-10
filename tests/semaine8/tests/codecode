@@ -1,0 +1,44 @@
+	def test2()
+(
+return 
+3
+)
+end
+	def test(a, b)
+(
+c = 
+.test2()
+if #<MTS::MCall:0x00007ff13a907f08>
+return 
+(
+#<MTS::LVar:0x00007ff13a907e90>.+(#<MTS::LVar:0x00007ff13a907e40>)
+)
+else
+return 
+0
+end
+)
+end
+	def behavior()
+(
+for  in (
+(IRANGE : (lhs : #<MTS::IntLit:0x00007ff13a907a58>, rhs : #<MTS::IntLit:0x00007ff13a907a30>))
+)
+(
+a = 
+3.14
+b = 
+2
+c = 
+3
+d = 
+.test(#<MTS::LVar:0x00007ff13a907620>, #<MTS::LVar:0x00007ff13a9075f8>)
+e = 
+[#<MTS::IntLit:0x00007ff13a907490>,#<MTS::FloatLit:0x00007ff13a907468>,#<MTS::StrLit:0x00007ff13a907440>]
+v = 
+#<MTS::LVar:0x00007ff13a907300>.*(#<MTS::Body:0x00007ff13a9071c0>)
+.puts(#<MTS::Dstr:0x00007ff13a906e78>)
+)
+end
+)
+end
