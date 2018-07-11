@@ -59,6 +59,9 @@ module MTS
           return parse_block(sexp)
         when :args
           return parse_args(sexp)
+        # seems like ivar and lvar are the same for us?
+      when :ivar
+          return parse_lvar(sexp)
         when :lvar
           return parse_lvar(sexp)
         when :int
@@ -69,6 +72,8 @@ module MTS
           return parse_str(sexp)
         when :return
           return parse_return(sexp)
+        when :super
+          return parse_super(sexp)
         when :irange
           return parse_irange(sexp)
         when :array
@@ -146,6 +151,11 @@ module MTS
         whens=elems.select{|e| e.is_a? MTS::When}
         else_=elems.pop
         Case.new(expr,whens,else_)
+      end
+
+      def parse_super sexp
+        args = sexp.children.collect{|e| to_object(e)}
+        Super.new(args)
       end
 
       def parse_when sexp

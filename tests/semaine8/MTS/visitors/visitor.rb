@@ -20,6 +20,18 @@ class Visitor
     raise NotImplementedError.new
   end
 
+  def visitSuper node
+    raise NotImplementedError.new
+  end
+
+  def visitBlock node
+    raise NotImplementedError.new
+  end
+
+  def visitArgs node
+    raise NotImplementedError.new
+  end
+
   def visitOpAssign node
     raise NotImplementedError.new
   end

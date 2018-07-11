@@ -163,6 +163,7 @@ module MTS
 
   class System
     attr_reader :name,:actors,:ordered_actors, :connexions, :inouts
+    attr_accessor :blockStr
 
     def initialize(name, &block)
       @name = name

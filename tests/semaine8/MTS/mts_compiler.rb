@@ -39,6 +39,7 @@ module MTS
       sys = evaluate @filename
       puts "SYSYSYSYS"
       pp objectifier.methods_objects
+      sys.blockStr = File.read(@filename).split('MTS::System.new').last
       @root = Root.new objectifier.methods_objects, sys
 
       #define the static inference's context

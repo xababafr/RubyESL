@@ -2,29 +2,32 @@ require '../MTS/mts_actors_model'
 
 class Camera < MTS::Actor
   
-    output :imgT
+    output :out1, :out2
+  
+    def initialize(name, video)
+        (
+        @fullImg = video
+register(:@fullImg,@fullImg)
+register(:video,video)
+    
+        super(name)
+register(:name,name)
+        )
+    end
   
     def behavior()
         (
-    
-        ((1..5)).each() do |x|
-    
-        print(x)
-register(:x,x)
-        end
-        fullImg = [[1,1,1,1],[2,2,2,3],[3,3,4,3],[0,1,1,0]]
-register(:fullImg,fullImg)
-    
         for i in ((0..4))
             (
             puts("sending " + (
-            fullImg.[](i)).to_s)
-register(:i,i)
-register(:fullImg,fullImg)
+            @fullImg.[](i)).to_s)
+register(:@fullImg,@fullImg)
             send!(
-            fullImg.[](i), :imgT))
-register(:i,i)
-register(:fullImg,fullImg)
+            @fullImg.[](i), :out1)
+register(:@fullImg,@fullImg)
+            send!(
+            @fullImg.[](i), :out2))
+register(:@fullImg,@fullImg)
         end)
     end
   
@@ -37,15 +40,63 @@ class Processing < MTS::Actor
     input :imgT
   
   
+    def initialize(name, algo)
+        (
+        @algo = algo
+register(:@algo,@algo)
+register(:algo,algo)
+    
+        super(name)
+register(:name,name)
+        )
+    end
+  
     def processing(img)
         (
+        output = 
+        Array.new()
+register(:output,output)
+register(:Array,Array)
     
-        img.each() do |pixel|
+        if (
+        @algo.==("+"))
+register(:@algo,@algo)
+      
+      
+            img.each() do |pixel|
 register(:img,img)
-    
-        pixel += 1
-    
-        end)
+      
+            output.push(
+            pixel.+(1))
+register(:output,output)
+register(:pixel,pixel)
+            end
+        else
+      
+            if (
+            @algo.==("-"))
+register(:@algo,@algo)
+        
+        
+                img.each() do |pixel|
+register(:img,img)
+        
+                output.push(
+                pixel.-(1))
+register(:output,output)
+register(:pixel,pixel)
+                end
+            else
+        
+                output = img
+register(:output,output)
+register(:img,img)
+        
+            end
+      
+        end
+        output)
+register(:output,output)
     end
   
     def behavior()
@@ -56,10 +107,12 @@ register(:img,img)
             receive?(:imgT)
 register(:img,img)
       
-            puts("received : img")
-            puts("Processed img : " + (
-            processing(img)).to_s))
-register(:img,img)
+            puts("received : " + (img).to_s + " (by " + (@name).to_s + ")")
+            processed = 
+            processing(img)
+register(:processed,processed)
+      
+            puts("Processed img : " + (processed).to_s))
         end)
     end
   
@@ -68,10 +121,17 @@ register(:img,img)
 
 end
 
-sys=MTS::System.new('sys1') do
-    camera = Camera.new('camera')
-processing = Processing.new('processing')
-set_actors([camera,processing])
-connect_as(:fifo10, camera.imgT => processing.imgT)
 
+
+sys=MTS::System.new("sys") do
+    camera = Camera.new("camera", [ [1,1,1,1], [2,2,2,3], [3,3,4,3], [0,1,1,0] ])
+    proc1 = Processing.new("proc1", "-")
+    proc2 = Processing.new("proc2", "+")
+
+    # here lies the order of the actors for now
+    set_actors([camera,proc1, proc2])
+
+    connect_as(:fifo10, camera.out1 => proc1.imgT)
+    connect_as(:fifo10, camera.out2 => proc2.imgT)
 end
+

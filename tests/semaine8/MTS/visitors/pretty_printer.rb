@@ -75,31 +75,36 @@ module MTS
 
       end
 
-      if !node.connexions.nil?
-        @code << "sys=MTS::System.new('sys1') do"
-        @code.wrap
+      # now we have sys.blockStr to print the block's content easily
 
-        node.ordered_actors.each do |actor|
-          @code << "#{actor.name} = #{actor.class}.new('#{actor.name}')\n"
-        end
+      # if !node.connexions.nil?
+      #   @code << "sys=MTS::System.new('sys1') do"
+      #   @code.wrap
+      #
+      #   node.ordered_actors.each do |actor|
+      #     @code << "#{actor.name} = #{actor.class}.new('#{actor.name}')\n"
+      #   end
+      #
+      #   @code << "set_actors(["
+      #   node.ordered_actors.each_with_index do |actor,idx|
+      #     if idx != 0
+      #       @code << ","
+      #     end
+      #     @code << actor.name
+      #   end
+      #   @code << "])\n"
+      #
+      #   node.connexions.each do |conx|
+      #     #@code << "connect(#{conx})"
+      #     @code << "connect_as(:#{conx[0][:moc]}, #{conx[0][:ename]}.#{conx[0][:port]} => #{conx[1][:ename]}.#{conx[1][:port]})\n"
+      #   end
+      #   @code.unwrap
+      #   @code << "end"
+      #
+      # end
 
-        @code << "set_actors(["
-        node.ordered_actors.each_with_index do |actor,idx|
-          if idx != 0
-            @code << ","
-          end
-          @code << actor.name
-        end
-        @code << "])\n"
-
-        node.connexions.each do |conx|
-          #@code << "connect(#{conx})"
-          @code << "connect_as(:#{conx[0][:moc]}, #{conx[0][:ename]}.#{conx[0][:port]} => #{conx[1][:ename]}.#{conx[1][:port]})\n"
-        end
-        @code.unwrap
-        @code << "end"
-
-      end
+      @code.newline 2
+      @code << 'sys=MTS::System.new'+node.blockStr
 
       # then we create the sys objet
     end
@@ -209,6 +214,20 @@ module MTS
       @code.newline
     end
 
+    def visitSuper node
+      puts "assign"
+      @code.newline
+      @code << "super("
+      node.args.each_with_index do |arg,idx|
+        if idx != 0
+          @code << ", "
+        end
+        arg.accept self
+      end
+      @code << ")"
+      @code.newline
+    end
+
     def visitOpAssign node
       puts "op_assign"
       @code.newline
@@ -231,6 +250,7 @@ module MTS
       node.else_.accept self unless node.else_.nil?
       @code.unwrap
       @code << "end"
+      @code.newline
     end
 
     def visitWhile node

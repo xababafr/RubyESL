@@ -37,7 +37,7 @@ module MTS
 
   # the root of everything (starting point of the visitor)
   class Root < Ast
-    attr_accessor :methods, :classes, :sourceCode, :connexions, :ordered_actors
+    attr_accessor :methods, :classes, :sourceCode, :connexions, :ordered_actors, :blockStr
 
     def initialize methods, system
       @methods = methods
@@ -48,6 +48,7 @@ module MTS
       end
       @connexions = system.connexions
       @ordered_actors = system.ordered_actors
+      @blockStr = system.blockStr
     end
 
     def accept visitor
@@ -241,6 +242,18 @@ module MTS
     end
   end
 
+  class Super < Ast
+    attr_accessor :args
+
+    def initialize args
+      @args = args
+    end
+
+    def accept visitor
+      visitor.visitSuper self
+    end
+  end
+
   class IntLit < Ast
     attr_accessor :value
 
@@ -320,10 +333,11 @@ module MTS
   end
 
   class Const < Ast
-    attr_accessor :children
+    attr_accessor :children, :name
 
     def initialize children
       @children = children
+      @name = @children[1]
     end
 
     def accept visitor
