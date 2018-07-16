@@ -12,6 +12,23 @@ module MTS
       @code = Code.new
     end
 
+    # def get_var_assign varName, varTypeObj, var
+    #   infos = typeObj.cpp_signature
+    #   if infos[:nature] == "SingleT"
+    #     if infos[:isBaseline]
+    #       "#{infos[:signature]} #{varName} = #{pp var}"
+    #     else
+    #       # no args for now
+    #       "#{infos[:signature]} #{varName} = #{infos[:class]}.new()"
+    #     end
+    #   elsif infos[:nature] == "ArrayT"
+    #     # no args for now
+    #     "#{infos[:signature]} #{varName}[#{varTypeObj.size}]"
+    #   else # UnionT ?
+    #     "notImplementedYet"
+    #   end
+    # end
+
     def visitRoot node
       puts "root"
 

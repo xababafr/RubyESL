@@ -6,7 +6,7 @@ require "../MTS/mts_actors_model"
 # |Camera| -- img --> |Processing|
 
 class Camera < MTS::Actor
-  output :out1, :out2
+  output :out1, :out2, :out3
 
   def initialize name, video
     @fullImg = video

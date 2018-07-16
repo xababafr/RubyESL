@@ -3,43 +3,41 @@
   :Camera:
   - :symbol: :out1
     :direction: :output
-    :type: "[Integer]"
+    :type: int[4]
     :value: &2
     - 3
     - 3
     - 4
     - 3
-    :typeObj: !ruby/object:MTS::UnionType
-      subTypes:
-      - !ruby/object:MTS::ArrayType
-        subType: !ruby/object:MTS::SingleType
-          type: &1 !ruby/class 'Integer'
-        size: 4
+    :typeObj: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: &1 !ruby/class 'Integer'
+      size: 4
   - :symbol: :out2
     :direction: :output
-    :type: "[Integer]"
+    :type: int[4]
     :value:
     - 2
     - 2
     - 2
     - 3
-    :typeObj: !ruby/object:MTS::UnionType
-      subTypes:
-      - !ruby/object:MTS::ArrayType
-        subType: !ruby/object:MTS::SingleType
-          type: *1
-        size: 4
+    :typeObj: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 4
+  - :symbol: :out3
+    :direction: :output
+    :type: []
+    :value: :nil
   :Processing:
   - :symbol: :imgT
     :direction: :input
-    :type: "[Integer]"
+    :type: int[4]
     :value: *2
-    :typeObj: !ruby/object:MTS::UnionType
-      subTypes:
-      - !ruby/object:MTS::ArrayType
-        subType: !ruby/object:MTS::SingleType
-          type: *1
-        size: 4
+    :typeObj: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 4
 :VARIABLES:
   :camera:
     :@fullImg: !ruby/object:MTS::ArrayType

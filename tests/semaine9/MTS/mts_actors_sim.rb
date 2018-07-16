@@ -101,7 +101,7 @@ module MTS
                 hash[:value] = data
                 typeObj = TypeFactory.create pValue, data
                 hash[:typeObj] = typeObj
-                hash[:type] = typeObj.signature
+                hash[:type] = typeObj.cpp_signature
 
   					end
   				end
