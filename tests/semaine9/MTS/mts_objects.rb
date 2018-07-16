@@ -48,9 +48,12 @@ module MTS
       end
       @ordered_actors = system.ordered_actors
       @blockStr = system.blockStr
-      
+
       @inouts = system.inouts
       @connexions = system.connexions
+
+      puts "SYS SYS"
+      pp system
     end
 
     def accept visitor

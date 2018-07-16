@@ -100,6 +100,7 @@ module MTS
         :CONNEXIONS => simulator.system.connexions
       }
 
+      # global access
       DATA.dynTypes = typesdata
 
       File.open(@filename+'.yml','w'){|f| f.puts(YAML.dump(typesdata))}

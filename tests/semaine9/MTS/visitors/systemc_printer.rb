@@ -15,6 +15,8 @@ module MTS
     def visitRoot node
       puts "root"
 
+     pp DATA.inouts
+
       @code << "#include <systemc.h>"
       @code.newline 2
 
@@ -30,6 +32,10 @@ module MTS
         end
         @code.wrap
 
+        currentClassInouts = DATA.dynTypes[:INOUTS][klass]
+        #puts "CURRENT INOUTS"
+        #pp currentClassInouts
+
         # printing inouts
         inputs, outputs = [], []
         node.connexions.each do |conx|
@@ -42,14 +48,24 @@ module MTS
         end
 
         inputs.uniq.each do |input|
-          # for now, let's not put the type
-          @code << "sc_in<TYP> #{input};"
+          type = "!notFound!"
+          currentClassInouts.each do |inout|
+            if inout[:symbol] == input
+              type = inout[:typeObj]
+            end
+          end
+          @code << "sc_in<#{type.cpp_signature}> #{input};"
           @code.newline
         end
 
         outputs.uniq.each do |output|
-          # for now, let's not put the type
-          @code << "sc_out<TYP> #{output};"
+          type = "!notFound!"
+          currentClassInouts.each do |inout|
+            if inout[:symbol] == output
+              type = inout[:typeObj]
+            end
+          end
+          @code << "sc_out<#{type.cpp_signature}> #{output};"
           @code.newline
         end
 

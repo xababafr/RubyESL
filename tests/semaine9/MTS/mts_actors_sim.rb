@@ -85,7 +85,7 @@ module MTS
             hash[:value] = data
             typeObj = TypeFactory.create pValue, data
             hash[:typeObj] = typeObj
-            hash[:type] = typeObj.signature
+            hash[:type] = typeObj.cpp_signature
 
   			end
   		end
@@ -96,15 +96,13 @@ module MTS
   				# then repeat 1/ on the connected symbol (might happen more than once if multiple connexions)
   				DATA.inouts[ connexion[1][:cname] ].each do |hash|
   					if hash[:symbol] == connexion[1][:port]
-              if hash[:symbol] == port
 
-                  pValue = hash[:value] # will be nil if doesnt exist yet
-                  hash[:value] = data
-                  typeObj = TypeFactory.create pValue, data
-                  hash[:typeObj] = typeObj
-                  hash[:type] = typeObj.signature
+                pValue = hash[:value] # will be nil if doesnt exist yet
+                hash[:value] = data
+                typeObj = TypeFactory.create pValue, data
+                hash[:typeObj] = typeObj
+                hash[:type] = typeObj.signature
 
-              end
   					end
   				end
   			end

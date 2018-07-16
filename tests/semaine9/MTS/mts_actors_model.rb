@@ -196,7 +196,7 @@ module MTS
         inputs, outputs = actor.class.getInouts[0], actor.class.getInouts[1]
 
         if !(inputs.nil?)
-          inputs.each do |sym|
+          inputs.uniq.each do |sym|
             currentInouts << {
               :symbol => sym,
               :direction => :input,
@@ -207,7 +207,7 @@ module MTS
         end
 
         if !(outputs.nil?)
-          outputs.each do |sym|
+          outputs.uniq.each do |sym|
             currentInouts << {
               :symbol => sym,
               :direction => :output,

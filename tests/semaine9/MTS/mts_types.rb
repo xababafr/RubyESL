@@ -1,6 +1,16 @@
 module MTS
 
-  class SingleType
+  class Type
+    def signature
+      "notImplemented"
+    end
+
+    def cpp_signature
+      signature()
+    end
+  end
+
+  class SingleType < Type
     attr_reader :type
 
     def signature
@@ -13,7 +23,7 @@ module MTS
     end
   end
 
-    class UnionType
+    class UnionType < Type
         attr_reader :subTypes
 
         def signature
@@ -38,7 +48,7 @@ module MTS
         end
     end
 
-    class ArrayType
+    class ArrayType < Type
         attr_reader :subType
 
         def signature
