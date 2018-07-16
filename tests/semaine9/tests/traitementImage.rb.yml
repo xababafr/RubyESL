@@ -1,0 +1,159 @@
+---
+:INOUTS:
+  :Camera:
+  - :symbol: :out1
+    :direction: :output
+    :type: "[Integer]"
+    :value: &2
+    - 3
+    - 3
+    - 4
+    - 3
+    :typeObj: !ruby/object:MTS::UnionType
+      subTypes:
+      - !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: &1 !ruby/class 'Integer'
+        size: 4
+  - :symbol: :out2
+    :direction: :output
+    :type: "[Integer]"
+    :value: &3
+    - 2
+    - 2
+    - 2
+    - 3
+    :typeObj: !ruby/object:MTS::UnionType
+      subTypes:
+      - !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+  - :symbol: :out1
+    :direction: :output
+    :type: "[Integer]"
+    :value: *2
+    :typeObj: !ruby/object:MTS::UnionType
+      subTypes:
+      - !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+  - :symbol: :out2
+    :direction: :output
+    :type: "[Integer]"
+    :value: *3
+    :typeObj: !ruby/object:MTS::UnionType
+      subTypes:
+      - !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+  - :symbol: :out1
+    :direction: :output
+    :type: "[Integer]"
+    :value: *2
+    :typeObj: !ruby/object:MTS::UnionType
+      subTypes:
+      - !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+  - :symbol: :out2
+    :direction: :output
+    :type: "[Integer]"
+    :value: *3
+    :typeObj: !ruby/object:MTS::UnionType
+      subTypes:
+      - !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+  :Processing:
+  - :symbol: :imgT
+    :direction: :input
+    :type: []
+    :value: :nil
+  - :symbol: :imgT
+    :direction: :input
+    :type: []
+    :value: :nil
+  - :symbol: :imgT
+    :direction: :input
+    :type: []
+    :value: :nil
+:VARIABLES:
+  :camera:
+    :@fullImg: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+      size: 4
+    :video: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::ArrayType
+        subType: !ruby/object:MTS::SingleType
+          type: *1
+        size: 4
+      size: 4
+    :name: !ruby/object:MTS::SingleType
+      type: &4 !ruby/class 'String'
+  :proc1:
+    :@algo: !ruby/object:MTS::SingleType
+      type: *4
+    :algo: !ruby/object:MTS::SingleType
+      type: *4
+    :name: !ruby/object:MTS::SingleType
+      type: *4
+    :img: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 4
+    :output: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 4
+    :Array: !ruby/object:MTS::SingleType
+      type: &5 !ruby/class 'Class'
+    :pixel: !ruby/object:MTS::SingleType
+      type: *1
+    :processed: !ruby/object:MTS::SingleType
+      type: &6 !ruby/class 'MTS::ArrayType'
+  :proc2:
+    :@algo: !ruby/object:MTS::SingleType
+      type: *4
+    :algo: !ruby/object:MTS::SingleType
+      type: *4
+    :name: !ruby/object:MTS::SingleType
+      type: *4
+    :img: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 4
+    :output: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 4
+    :Array: !ruby/object:MTS::SingleType
+      type: *5
+    :pixel: !ruby/object:MTS::SingleType
+      type: *1
+    :processed: !ruby/object:MTS::SingleType
+      type: *6
+:CONNEXIONS:
+- - :ename: :camera
+    :cname: :Camera
+    :port: :out1
+    :moc: :fifo10
+  - :ename: :proc1
+    :cname: :Processing
+    :port: :imgT
+    :moc: :fifo10
+- - :ename: :camera
+    :cname: :Camera
+    :port: :out2
+    :moc: :fifo10
+  - :ename: :proc2
+    :cname: :Processing
+    :port: :imgT
+    :moc: :fifo10
