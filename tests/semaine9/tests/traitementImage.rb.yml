@@ -54,7 +54,7 @@
       size: 4
     :name: !ruby/object:MTS::SingleType
       type: &3 !ruby/class 'String'
-  :proc1:
+  :processing:
     :@algo: !ruby/object:MTS::SingleType
       type: *3
     :algo: !ruby/object:MTS::SingleType
@@ -70,38 +70,17 @@
         type: *1
       size: 4
     :Array: !ruby/object:MTS::SingleType
-      type: &4 !ruby/class 'Class'
+      type: !ruby/class 'Class'
     :pixel: !ruby/object:MTS::SingleType
       type: *1
     :processed: !ruby/object:MTS::SingleType
-      type: &5 !ruby/class 'MTS::ArrayType'
-  :proc2:
-    :@algo: !ruby/object:MTS::SingleType
-      type: *3
-    :algo: !ruby/object:MTS::SingleType
-      type: *3
-    :name: !ruby/object:MTS::SingleType
-      type: *3
-    :img: !ruby/object:MTS::ArrayType
-      subType: !ruby/object:MTS::SingleType
-        type: *1
-      size: 4
-    :output: !ruby/object:MTS::ArrayType
-      subType: !ruby/object:MTS::SingleType
-        type: *1
-      size: 4
-    :Array: !ruby/object:MTS::SingleType
-      type: *4
-    :pixel: !ruby/object:MTS::SingleType
-      type: *1
-    :processed: !ruby/object:MTS::SingleType
-      type: *5
+      type: !ruby/class 'MTS::ArrayType'
 :CONNEXIONS:
 - - :ename: :camera
     :cname: :Camera
     :port: :out1
     :moc: :fifo10
-  - :ename: :proc1
+  - :ename: :processing
     :cname: :Processing
     :port: :imgT
     :moc: :fifo10
@@ -109,7 +88,7 @@
     :cname: :Camera
     :port: :out2
     :moc: :fifo10
-  - :ename: :proc2
+  - :ename: :processing
     :cname: :Processing
     :port: :imgT
     :moc: :fifo10

@@ -1,7 +1,7 @@
 require_relative "../MTS/mts_compiler"
 
 compiler = MTS::Compiler.new "./traitementImage.rb" #, visitor
-compiler.compile_systemc 1
+compiler.compile_systemc 1, "PROBES2", "SYSTEMC2"
 
 #puts visitor.code.get_source
 

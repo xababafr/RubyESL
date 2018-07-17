@@ -61,8 +61,8 @@ end
 
 sys=MTS::System.new("sys") do
     camera = Camera.new("camera", [ [1,1,1,1], [2,2,2,3], [3,3,4,3], [0,1,1,0] ])
-    proc1 = Processing.new("proc1", "-")
-    proc2 = Processing.new("proc2", "+")
+    proc1 = Processing.new("processing", "-")
+    proc2 = Processing.new("processing", "+")
 
     # here lies the order of the actors for now
     set_actors([camera,proc1, proc2])

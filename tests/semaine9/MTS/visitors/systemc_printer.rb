@@ -40,9 +40,7 @@ module MTS
       # for each class
       node.classes.each do |klass,methods|
 
-        # these infos might be needed for further method calls, for now lets do this
-        @currentModule = klass
-        @currentProcesses = methods
+        pp DATA.dynTypes[:VARIABLES]
 
         oredered_actors_classes = node.ordered_actors.map { |a| a.class.to_s }
         puts "ORDERED CLASSES"
@@ -98,16 +96,36 @@ module MTS
           #code << methArray[0].to_s + "\n"
           if methArray[0] != :initialize
             methArray[1].accept self
+          else # lets treat the constructor the way it should
+            #@code << "SC_HAS_PROCESS(initialize);"
+            #@code.newline
+            comma = ""
+            if methArray[1].args.size > 0
+              comma = ", "
+            end
+            signedArgs = []
+            methArray[1].args.each do |arg|
+              # TODO
+              # for now, I access to the initialize's signature this way. Need to find a better one
+              typeObj = DATA.dynTypes[:VARIABLES][klass.to_s.downcase.to_sym][arg]
+              pp typeObj
+              signedArgs << (typeObj.cpp_signature + " " + arg.to_s)
+            end
+
+            @code << "#{klass}(sc_module_name scname#{comma}#{signedArgs.join(', ')}) : sc_module(scname) {"
+            @code.newline 2
+            @code << "}"
+            @code.newline 2
           end
         end
 
         # lets create the sc_ctor = constructor
-        @code << "SC_CTOR( #{klass} ) {"
-        @code.wrap
-        @code.newline
-        #....
-        @code.unwrap
-        @code << "}"
+        # @code << "SC_CTOR( #{klass} ) {"
+        # @code.wrap
+        # @code.newline
+        # #....
+        # @code.unwrap
+        # @code << "}"
 
         @code.unwrap
         @code.newline

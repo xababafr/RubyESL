@@ -93,9 +93,9 @@ module MTS
         end
 
         def cpp_signature
-          if @subType.is_a?(SingleType)
-            "#{@subType.cpp_signature}[#{@size}]"
-          end
+          #if @subType.is_a?(SingleType)
+          "#{@subType.cpp_signature}[#{@size}]"
+          #end
         end
 
         # a single subType (Single, Union or Array type)
