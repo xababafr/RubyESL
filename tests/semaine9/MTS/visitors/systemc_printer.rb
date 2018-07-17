@@ -39,6 +39,11 @@ module MTS
 
       # for each class
       node.classes.each do |klass,methods|
+
+        # these infos might be needed for further method calls, for now lets do this
+        @currentModule = klass
+        @currentProcesses = methods
+
         oredered_actors_classes = node.ordered_actors.map { |a| a.class.to_s }
         puts "ORDERED CLASSES"
         pp oredered_actors_classes
@@ -89,15 +94,25 @@ module MTS
         @code.newline
 
         # go for each method
-        #methods.each do |methArray|
+        methods.each do |methArray| #[:behavior, objectified_ast]
           #code << methArray[0].to_s + "\n"
-          #methArray[1].accept self
-        #end
+          if methArray[0] != :initialize
+            methArray[1].accept self
+          end
+        end
+
+        # lets create the sc_ctor = constructor
+        @code << "SC_CTOR( #{klass} ) {"
+        @code.wrap
+        @code.newline
+        #....
+        @code.unwrap
+        @code << "}"
 
         @code.unwrap
         @code.newline
         @code << "};"
-        @code.newline 2
+        @code.newline
 
       end
 
@@ -110,11 +125,12 @@ module MTS
 
     def visitMethod node
       puts "method"
-      @code << "def #{node.name}(#{node.args.join(', ')})"
+      returnType = "void"
+      @code << "#{returnType} #{node.name}(#{node.args.join(', ')}) {"
       @code.wrap
-      node.body.accept self unless node.body.nil?
+      #node.body.accept self unless node.body.nil?
       @code.unwrap
-      @code << "end"
+      @code << "}"
       @code.newline 2
     end
 
