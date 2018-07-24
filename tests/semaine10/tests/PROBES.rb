@@ -9,7 +9,7 @@ class Fir < MTS::Actor
         @coef = [0,0,0,0,0]
 register(:@coef,@coef)
     
-        for i in ((0..5))
+        for i in ((0...5))
       
             @coef.[]=(i, 
             ucoef.[](i))
@@ -20,15 +20,15 @@ register(:name,name)
         )
     end
   
-    def behavior()
+    def fir_main()
         (
-        puts("fir behavior()")
+        puts("fir_main()")
         vals = [0,0,0,0,0]
 register(:vals,vals)
     
         while( (true) )
             (
-            for i in ((0..4))
+            for i in ((0...4))
         
                 vals.[]=(i, 
                 vals.[](
@@ -41,7 +41,7 @@ register(:vals,vals)
             ret = 0
 register(:ret,ret)
       
-            for i in ((0..5))
+            for i in ((0...5))
         
                 ret += 
         
@@ -53,6 +53,11 @@ register(:ret,ret)
             send!(ret, :outp)
             wait())
         end)
+    end
+  
+    def behavior()
+        (
+        fir_main())
     end
   
   
@@ -69,7 +74,7 @@ class TestBench < MTS::Actor
         tmp = 0
 register(:tmp,tmp)
     
-        for i in ((0..64))
+        for i in ((0...64))
             (
             if ((( 
             i.>(23) ) && ( 
@@ -92,7 +97,7 @@ register(:tmp,tmp)
   
     def sink()
         (
-        for i in ((0..64))
+        for i in ((0...64))
             (
             datain = 
             receive?(:outp)
@@ -103,6 +108,12 @@ register(:datain,datain)
         end
         stop()
         puts("sim stopped"))
+    end
+  
+    def behavior()
+        (
+        source()
+        sink())
     end
   
   

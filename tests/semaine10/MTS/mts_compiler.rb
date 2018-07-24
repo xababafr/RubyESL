@@ -108,8 +108,8 @@ module MTS
       # 3/ visit the objectified AST again and nest its nodes with inferred types
       @root.accept DynamicInfer.new
 
-      puts "FINAL AST"
-      pp @root
+      #puts "FINAL AST"
+      #pp @root
 
       # root.inouts and root.connexion are already defined in its constructor
       @root.variables = variables

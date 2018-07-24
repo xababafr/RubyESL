@@ -267,6 +267,7 @@ module MTS
 
     def visitFor node
       puts "for"
+      pp node
       # make sure this works
       node.idx ||= "i"
       @code.newline
@@ -277,6 +278,25 @@ module MTS
       node.body.accept self unless node.body.nil?
       @code.unwrap
       @code << "end"
+    end
+
+    def visitIRange node
+      puts "irange"
+      #@code << "(IRANGE : (lhs : #{node.lhs}, rhs : #{node.rhs}))"
+      @code << "("
+      node.lhs.accept self
+      @code << ".."
+      node.rhs.accept self
+      @code << ")"
+    end
+
+    def visitERange node
+      puts "erange"
+      @code << "("
+      node.lhs.accept self
+      @code << "..."
+      node.rhs.accept self
+      @code << ")"
     end
 
     def visitCase node
@@ -399,16 +419,6 @@ module MTS
     def visitStrLit node
       puts "strlit"
       @code << '"'+node.value.to_s+'"'
-    end
-
-    def visitIRange node
-      puts "irange"
-      #@code << "(IRANGE : (lhs : #{node.lhs}, rhs : #{node.rhs}))"
-      @code << "("
-      node.lhs.accept self
-      @code << ".."
-      node.rhs.accept self
-      @code << ")"
     end
 
     def visitAry node

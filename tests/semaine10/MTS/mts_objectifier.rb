@@ -84,6 +84,8 @@ module MTS
           return parse_super(sexp)
         when :irange
           return parse_irange(sexp)
+        when :erange
+          return parse_erange(sexp)
         when :array
           return parse_array(sexp)
         when :hash
@@ -121,6 +123,11 @@ module MTS
       def parse_irange sexp
         lhs,rhs=*sexp.children[0..1].collect{|stmt| to_object(stmt)}
         IRange.new(lhs,rhs)
+      end
+
+      def parse_erange sexp
+        lhs,rhs=*sexp.children[0..1].collect{|stmt| to_object(stmt)}
+        ERange.new(lhs,rhs)
       end
 
       def parse_lvar sexp

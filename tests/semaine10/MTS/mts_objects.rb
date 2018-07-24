@@ -197,7 +197,7 @@ module MTS
     def initialize
 
     end
-    
+
     def accept visitor
       visitor.visitFalse self
     end
@@ -349,6 +349,18 @@ module MTS
 
     def accept visitor
       visitor.visitIRange self
+    end
+  end
+
+  class ERange < Ast
+    attr_accessor :lhs, :rhs
+
+    def initialize l,r
+      @lhs,@rhs=l,r
+    end
+
+    def accept visitor
+      visitor.visitERange self
     end
   end
 

@@ -1,0 +1,64 @@
+---
+:INOUTS:
+  :TestBench:
+  - :symbol: :outp
+    :direction: :input
+    :type: []
+    :value: :nil
+  - :symbol: :inp
+    :direction: :input
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: &1 !ruby/class 'Integer'
+  - :symbol: :inp
+    :direction: :output
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: *1
+  - :symbol: :outp
+    :direction: :output
+    :type: []
+    :value: :nil
+  :Fir:
+  - :symbol: :inp
+    :direction: :input
+    :type: []
+    :value: :nil
+  - :symbol: :outp
+    :direction: :output
+    :type: []
+    :value: :nil
+:VARIABLES:
+  :tb0:
+    :tmp: !ruby/object:MTS::SingleType
+      type: *1
+  :fir0:
+    :@coef: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 5
+    :name: !ruby/object:MTS::SingleType
+      type: !ruby/class 'String'
+    :vals: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 5
+:CONNEXIONS:
+- - :ename: :tb0
+    :cname: :TestBench
+    :port: :outp
+    :moc: :fifo10
+  - :ename: :fir0
+    :cname: :Fir
+    :port: :inp
+    :moc: :fifo10
+- - :ename: :fir0
+    :cname: :Fir
+    :port: :outp
+    :moc: :fifo10
+  - :ename: :tb0
+    :cname: :TestBench
+    :port: :inp
+    :moc: :fifo10
