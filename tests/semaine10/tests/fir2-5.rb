@@ -28,7 +28,7 @@ class Fir < MTS::Actor
 
       ret = 0
       for i in 0...5
-        ret += coef[i] * vals[i]
+        ret += @coef[i] * vals[i]
       end
 
       send!(ret, :outp)

@@ -1,5 +1,6 @@
+# this code contains all the objects necessary to create an AST
+
 require_relative "./visitors/visitor"
-require_relative "mts_behaviours"
 
 module MTS
 

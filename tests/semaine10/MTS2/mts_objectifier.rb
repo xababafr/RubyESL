@@ -1,36 +1,9 @@
+# this class take a ruby code and creates its corresponding AST
+
 require_relative "./mts_objects"
 
 module MTS
-class Objectifier
-
-    attr_accessor :methods_ast, :methods_objects
-
-    def initialize methods_ast_hash
-      @methods_ast = methods_ast_hash
-      @methods_objects = {}
-      @methods_ast.keys.each do |key|
-        parse_method @methods_ast[ [key[0],key[1]] ], key
-      end
-    end
-
-    def parse_body body
-      puts "PARSE_BODY(#{caller_locations(1,1)[0].label})"
-      if body != nil && body.type==:begin
-        stmts=body.children.collect{|stmt| to_object(stmt)}
-      else
-        stmts=[]
-        stmts << to_object(body)
-      end
-      Body.new(stmts)
-    end
-
-    def parse_method sexp, key
-      name,args,body=*sexp.children[0..2]
-      args=args.children.collect{|e| e.children.first}
-      body=parse_body(body)
-      met = Method.new(name,args,body)
-      @methods_objects[key] = met
-    end
+  class Objectifier
 
     def to_object sexp
       return sexp unless sexp.is_a? Parser::AST::Node
@@ -102,6 +75,25 @@ class Objectifier
         #raise "NIY : #{sexp.type} => #{sexp}"
         Unknown.new sexp
       end
+    end
+
+    def parse_body body
+      puts "PARSE_BODY(#{caller_locations(1,1)[0].label})"
+      if body != nil && body.type==:begin
+        stmts=body.children.collect{|stmt| to_object(stmt)}
+      else
+        stmts=[]
+        stmts << to_object(body)
+      end
+      Body.new(stmts)
+    end
+
+    def parse_method sexp, key
+      name,args,body=*sexp.children[0..2]
+      args=args.children.collect{|e| e.children.first}
+      body=parse_body(body)
+      met = Method.new(name,args,body)
+      @methods_objects[key] = met
     end
 
     def parse_int sexp
@@ -245,5 +237,5 @@ class Objectifier
       Dstr.new(elements)
     end
 
-end
+  end
 end

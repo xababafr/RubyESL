@@ -62,7 +62,7 @@ module MTS
     end
 
     def register sym, var
-      puts "REGISTER(#{sym}, #{var}) ==> #{var.class}"
+      #puts "REGISTER(#{sym}, #{var}) ==> #{var.class}"
       @varsTypes ||= {}
       @vars ||= {}
 
@@ -73,7 +73,7 @@ module MTS
     end
 
     def send!(data, port)
-      puts "SEND(#{data}, #{port})! CALLED"
+      #puts "SEND(#{data}, #{port})! CALLED"
       cEntity = @name.to_sym
       cClass = self.class.to_s.to_sym
 
@@ -113,7 +113,7 @@ module MTS
     end
 
     def receive?(port)
-      puts "RECEIVE(#{port})! CALLED"
+      #puts "RECEIVE(#{port})! CALLED"
       tagged_value = @ports[port].recv()
       fix_current_time_with(tagged_value.time)
       return tagged_value.value
@@ -156,7 +156,7 @@ module MTS
       data #[t,value]
     end
 
-    def send_(data)
+    def send(data)
       Fiber.yield(:SEND_STATE) while @data
       @data = data
     end

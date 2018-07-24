@@ -31,11 +31,16 @@ register(:vals,vals)
     
         while( (true) )
             (
-            for i in ((4...0))
+            for i in ((0...4))
+                (
+                j = 
+                4.-(i)
+register(:j,j)
         
-                vals.[]=(i, 
-                vals.[](
-                i.-(1)))
+                vals.[]=(j, 
+        
+                val().[](
+                j.-(1))))
 register(:vals,vals)
             end
             vals.[]=(0, 
@@ -142,7 +147,7 @@ sys=MTS::System.new("sys") do
     # do they really need to have an order? I dont think so
     set_actors([src0, fir0, snk0])
 
-    connect_as(:fifo10, src0.inp => fir0.inp)
-    connect_as(:fifo10, fir0.outp => snk0.outp)
+    connect_as(:csp, src0.inp => fir0.inp)
+    connect_as(:csp, fir0.outp => snk0.outp)
 end
 

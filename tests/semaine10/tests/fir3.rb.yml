@@ -51,16 +51,16 @@
 - - :ename: :src0
     :cname: :Sourcer
     :port: :inp
-    :moc: :fifo10
+    :moc: :csp
   - :ename: :fir0
     :cname: :Fir
     :port: :inp
-    :moc: :fifo10
+    :moc: :csp
 - - :ename: :fir0
     :cname: :Fir
     :port: :outp
-    :moc: :fifo10
+    :moc: :csp
   - :ename: :snk0
     :cname: :Sinker
     :port: :outp
-    :moc: :fifo10
+    :moc: :csp
