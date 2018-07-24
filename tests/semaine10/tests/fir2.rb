@@ -8,25 +8,25 @@ class Fir < MTS::Actor
 
   def initialize name, ucoef
     @coef = [0,0,0,0,0]
-    for i in 0..5
+    for i in 0...5
       @coef[i] = ucoef[i]
     end
     super(name)
   end
 
   def behavior
-    puts "fir behavior()"
+    puts "FIR :: behavior()"
 
     vals = [0,0,0,0,0]
     while(true)
-      for i in 0..4
+      for i in 0...4
         vals[i] = vals[i-1]
       end
       vals[0] = receive?(:inp)
 
       ret = 0
-      for i in 0..5
-        ret += coef[i] * vals[i]
+      for i in 0...5
+        ret += @coef[i] * vals[i]
       end
 
       send!(ret, :outp)
@@ -41,8 +41,9 @@ class TestBench < MTS::Actor
   output :inp
 
   def source
+    puts "TB :: source()"
     tmp = 0
-    for i in 0..64
+    for i in 0...64
       if (i > 23 && i < 29)
         tmp = 256
       else
@@ -54,8 +55,10 @@ class TestBench < MTS::Actor
     end
   end
 
+  # le probleme dans cette simulation, c'est que sink n'est jamais atteint. Ses variables internes ne sont donc pas typees
   def sink
-    for i in 0..64
+    puts "TB :: sink()"
+    for i in 0...64
       datain = receive?(:outp)
       wait()
 
@@ -63,6 +66,11 @@ class TestBench < MTS::Actor
     end
     stop()
     puts "sim stopped"
+  end
+
+  def behavior
+    source()
+    sink()
   end
 
 end
@@ -77,6 +85,6 @@ sys=MTS::System.new("sys") do
     # here lies the order of the actors for now
     set_actors([tb0, fir0])
 
-    connect_as(:fifo10, tb0.outp => fir0.inp)
-    connect_as(:fifo10, fir0.outp => tb0.inp)
+    connect_as(:fifo10, tb0.inp => fir0.inp)
+    connect_as(:fifo10, fir0.outp => tb0.outp)
 end

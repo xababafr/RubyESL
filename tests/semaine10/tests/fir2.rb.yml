@@ -1,12 +1,18 @@
 ---
 :INOUTS:
-  :Sourcer:
+  :TestBench:
+  - :symbol: :outp
+    :direction: :input
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: &1 !ruby/class 'Integer'
   - :symbol: :inp
     :direction: :output
     :type: int
     :value: 0
     :typeObj: !ruby/object:MTS::SingleType
-      type: &1 !ruby/class 'Integer'
+      type: *1
   :Fir:
   - :symbol: :inp
     :direction: :input
@@ -20,15 +26,8 @@
     :value: 0
     :typeObj: !ruby/object:MTS::SingleType
       type: *1
-  :Sinker:
-  - :symbol: :outp
-    :direction: :input
-    :type: int
-    :value: 0
-    :typeObj: !ruby/object:MTS::SingleType
-      type: *1
 :VARIABLES:
-  :src0:
+  :tb0:
     :tmp: !ruby/object:MTS::SingleType
       type: *1
   :fir0:
@@ -44,12 +43,9 @@
       size: 5
     :ret: !ruby/object:MTS::SingleType
       type: *1
-  :snk0:
-    :datain: !ruby/object:MTS::SingleType
-      type: *1
 :CONNEXIONS:
-- - :ename: :src0
-    :cname: :Sourcer
+- - :ename: :tb0
+    :cname: :TestBench
     :port: :inp
     :moc: :fifo10
   - :ename: :fir0
@@ -60,7 +56,7 @@
     :cname: :Fir
     :port: :outp
     :moc: :fifo10
-  - :ename: :snk0
-    :cname: :Sinker
+  - :ename: :tb0
+    :cname: :TestBench
     :port: :outp
     :moc: :fifo10

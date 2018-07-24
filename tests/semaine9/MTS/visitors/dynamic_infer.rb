@@ -30,9 +30,9 @@ module MTS
     def visitLVar node
       puts "lvar"
 
-      puts "CURRENTCLASS"
-      pp @currentClass
-      pp DATA.dynTypes[:VARIABLES]
+      # puts "CURRENTCLASS"
+      # pp @currentClass
+      # pp DATA.dynTypes[:VARIABLES]
 
       if !DATA.dynTypes[:VARIABLES][@currentClass][node.name].nil?
         node.type = DATA.dynTypes[:VARIABLES][@currentClass][node.name]

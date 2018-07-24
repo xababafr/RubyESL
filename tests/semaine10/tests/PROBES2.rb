@@ -22,13 +22,16 @@ register(:name,name)
   
     def behavior()
         (
-        puts("FIR :: behavior()")
+        puts("
+FIR::BEHAVIOR()
+
+")
         vals = [0,0,0,0,0]
 register(:vals,vals)
     
         while( (true) )
             (
-            for i in ((0...4))
+            for i in ((4...0))
         
                 vals.[]=(i, 
                 vals.[](
@@ -60,13 +63,16 @@ register(:@coef,@coef)
 
 end
 
-class TestBench < MTS::Actor
-    input :outp
+class Sourcer < MTS::Actor
+  
     output :inp
   
-    def source()
+    def behavior()
         (
-        puts("TB :: source()")
+        puts("
+SOURCER::BEHAVIOR()
+
+")
         tmp = 0
 register(:tmp,tmp)
     
@@ -91,9 +97,21 @@ register(:tmp,tmp)
         end)
     end
   
-    def sink()
+  
+
+
+end
+
+class Sinker < MTS::Actor
+    input :outp
+  
+  
+    def behavior()
         (
-        puts("TB :: sink()")
+        puts("
+SINKER::BEHAVIOR()
+
+")
         for i in ((0...64))
             (
             datain = 
@@ -103,14 +121,7 @@ register(:datain,datain)
             wait()
             puts((i).to_s + " --> " + (datain).to_s))
         end
-        stop()
-        puts("sim stopped"))
-    end
-  
-    def behavior()
-        (
-        source()
-        sink())
+        puts("sim stopped??"))
     end
   
   
@@ -123,13 +134,15 @@ end
 sys=MTS::System.new("sys") do
     ucoef = [18,77,107,77,18]
 
+    src0 = Sourcer.new("src0")
+    snk0 = Sinker.new("snk0")
     fir0 = Fir.new("fir0", ucoef)
-    tb0 = TestBench.new("tb0")
 
     # here lies the order of the actors for now
-    set_actors([tb0, fir0])
+    # do they really need to have an order? I dont think so
+    set_actors([src0, fir0, snk0])
 
-    connect_as(:fifo10, tb0.inp => fir0.inp)
-    connect_as(:fifo10, fir0.outp => tb0.outp)
+    connect_as(:fifo10, src0.inp => fir0.inp)
+    connect_as(:fifo10, fir0.outp => snk0.outp)
 end
 

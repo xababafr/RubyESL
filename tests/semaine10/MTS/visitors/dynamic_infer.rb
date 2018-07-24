@@ -10,6 +10,8 @@ module MTS
     attr_accessor :currentClass
 
     def visitRoot node
+      puts "\n\n[[STARTING DYNAMIC INFERRING VISITOR]]\n\n"
+
       puts "root"
         # go for each method
         node.classes.each do |klass,methods|
@@ -30,9 +32,9 @@ module MTS
     def visitLVar node
       puts "lvar"
 
-      puts "CURRENTCLASS"
-      pp @currentClass
-      pp DATA.dynTypes[:VARIABLES]
+      # puts "CURRENTCLASS"
+      # pp @currentClass
+      # pp DATA.dynTypes[:VARIABLES]
 
       if !DATA.dynTypes[:VARIABLES][@currentClass][node.name].nil?
         node.type = DATA.dynTypes[:VARIABLES][@currentClass][node.name]
@@ -45,9 +47,6 @@ module MTS
     def visitAssign node
       puts "assign"
       node.rhs.accept self unless node.rhs.nil?
-
-      puts "VARRR"
-      pp DATA.dynTypes[:VARIABLES]
 
       if !DATA.dynTypes[:VARIABLES][@currentClass][node.lhs].nil?
         node.type = DATA.dynTypes[:VARIABLES][@currentClass][node.lhs]

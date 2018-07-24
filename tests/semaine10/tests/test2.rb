@@ -1,7 +1,7 @@
 require_relative "../MTS/mts_compiler"
 
-compiler = MTS::Compiler.new "./fir2.rb" #, visitor
-compiler.compile_dynamic 6, "PROBES" #, "SYSTEMC"
+compiler = MTS::Compiler.new "./fir3.rb" #, visitor
+compiler.compile_dynamic 4, "PROBES2" #, "SYSTEMC"
 
 #puts visitor.code.get_source
 

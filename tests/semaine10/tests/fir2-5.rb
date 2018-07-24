@@ -11,36 +11,50 @@ class Fir < MTS::Actor
     for i in 0...5
       @coef[i] = ucoef[i]
     end
+    add_thread(:fir_main)
+
     super(name)
   end
 
-  def behavior
-    puts "\nFIR::BEHAVIOR()\n\n"
+  def fir_main
+    puts "Fir :: fir_main()"
 
     vals = [0,0,0,0,0]
     while(true)
-      for i in 4...0
+      for i in 0...4
         vals[i] = vals[i-1]
       end
       vals[0] = receive?(:inp)
 
       ret = 0
       for i in 0...5
-        ret += @coef[i] * vals[i]
+        ret += coef[i] * vals[i]
       end
 
       send!(ret, :outp)
       wait()
     end
   end
+
+  def behavior
+
+  end
 end
 
 
-class Sourcer < MTS::Actor
+class TestBench < MTS::Actor
+  input  :outp
   output :inp
 
-  def behavior
-    puts "\nSOURCER::BEHAVIOR()\n\n"
+  def initialize name
+    add_thread(:source)
+    add_thread(:sink)
+
+    super(name)
+  end
+
+  def source
+    puts "TB :: source()"
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)
@@ -54,13 +68,8 @@ class Sourcer < MTS::Actor
     end
   end
 
-end
-
-class Sinker < MTS::Actor
-  input  :outp
-
-  def behavior
-    puts "\nSINKER::BEHAVIOR()\n\n"
+  def sink
+    puts "TB :: sink()"
     for i in 0...64
       datain = receive?(:outp)
       wait()
@@ -68,24 +77,25 @@ class Sinker < MTS::Actor
       puts "#{i} --> #{datain}"
     end
     #stop()
-    puts "sim stopped??"
+    puts "sim stopped"
+  end
+
+  def behavior
+
   end
 
 end
 
-# |Sourcer| ==inp==> |Fir| ==outp==> |Sinker|
 
 sys=MTS::System.new("sys") do
     ucoef = [18,77,107,77,18]
 
-    src0 = Sourcer.new("src0")
-    snk0 = Sinker.new("snk0")
     fir0 = Fir.new("fir0", ucoef)
+    tb0 = TestBench.new("tb0")
 
     # here lies the order of the actors for now
-    # do they really need to have an order? I dont think so
-    set_actors([src0, fir0, snk0])
+    set_actors([tb0, fir0])
 
-    connect_as(:fifo10, src0.inp => fir0.inp)
-    connect_as(:fifo10, fir0.outp => snk0.outp)
+    connect_as(:fifo10, tb0.outp => fir0.inp)
+    connect_as(:fifo10, fir0.outp => tb0.inp)
 end

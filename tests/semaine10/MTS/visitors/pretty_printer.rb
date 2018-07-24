@@ -267,7 +267,6 @@ module MTS
 
     def visitFor node
       puts "for"
-      pp node
       # make sure this works
       node.idx ||= "i"
       @code.newline
