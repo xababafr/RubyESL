@@ -41,17 +41,19 @@ module MTS
 
     def self.input *args
       args.each do |input|
-        #@@inouts << ( InOut.new self.class, input, :input )
+        inout = ( InOut.new get_klass(), input, :input )
+        DATA.inouts[get_klass()] = inout
         send(:attr_accessor, input) # create the attribute
-        send(input, ( InOut.new get_klass(), input, :input ) ) # give it a value
+        send(input, inout ) # give it a value
       end
     end
 
     def self.output *args
       args.each do |output|
-        #@@inouts << ( InOut.new self.class, output, :output )
+        inout = ( InOut.new get_klass(), output, :output )
+        DATA.inouts[get_klass()] = inout
         send(:attr_accessor, output)
-        send(output, ( InOut.new get_klass(), output, :output ) )
+        send(output, inout) )
       end
     end
 
@@ -111,6 +113,8 @@ module MTS
       DATA.instance_vars = {}
       # channels already have a chan.type
 
+      DATA.inouts = {}
+
       self.instance_eval(&block)
     end
 
@@ -127,6 +131,7 @@ module MTS
       actors_classes.each do |class_sym|
         DATA.local_vars[class_sym] = {} # method => { var_name => var_type_obj }
         DATA.instance_vars[class_sym] = {}  # var_name => var_type_obj
+        DATA.inouts[class_sym] = {} # inout_name => inout_obj
       end
     end
 

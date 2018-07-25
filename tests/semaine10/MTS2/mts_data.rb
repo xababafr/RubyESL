@@ -6,16 +6,40 @@ require 'singleton'
 module MTS
 
   # globals for the module
-  class MetaData
+  class GlobalData
     include Singleton
 
-    attr_accessor :simulator, :channels, :local_vars, :instance_vars
+    attr_accessor :simulator, :channels, :local_vars, :instance_vars, :inouts
+
+    # :simulator => <Simulator>
+    #
+    # :channels => [<Channel>]
+    #
+    # :local_vars => {
+    #   klass => {
+    #     method => {
+    #       var_name => var_type_obj
+    #     }
+    #   }
+    # }
+    #
+    # :instance_vars => {
+    #   klass => {
+    #     var_name => var_type_obj
+    #   }
+    # }
+    #
+    # :inouts => {
+    #   klass =>  {
+    #     inout_name => inout_obj
+    #   }
+    # }
 
     def initialize
 
     end
   end
 
-  DATA = MetaData.instance
+  DATA = GlobalData.instance
 
 end
