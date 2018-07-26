@@ -1,4 +1,3 @@
-require "../MTS2/mts_verbose"
 require "../MTS2/mts_dsl"
 
 # FIR filter
@@ -8,7 +7,7 @@ class Sourcer < NMTS::Actor
   thread :behavior
 
   def behavior
-    print "\nSOURCER::BEHAVIOR()\n\n"
+    puts "\nSOURCER::BEHAVIOR()\n\n"
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)
@@ -39,7 +38,7 @@ class Fir < NMTS::Actor
   end
 
   def behavior
-    print "\nFIR::BEHAVIOR()\n\n"
+    puts "\nFIR::BEHAVIOR()\n\n"
 
     vals = [0,0,0,0,0]
     while(true)
@@ -66,12 +65,12 @@ class Sinker < NMTS::Actor
   thread :behavior
 
   def behavior
-    print "\nSINKER::BEHAVIOR()\n\n"
+    puts "\nSINKER::BEHAVIOR()\n\n"
     for i in 0...64
       datain = read(:outp)
       wait()
 
-      print "#{i} --> #{datain}"
+      puts "#{i} --> #{datain}"
     end
     stop()
   end

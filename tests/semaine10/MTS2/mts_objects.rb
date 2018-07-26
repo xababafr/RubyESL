@@ -17,7 +17,7 @@ module NMTS
 
     def initialize sexp
       @sexp = sexp
-      #V_print self, "UNKNOWN"
+      #puts "UNKNOWN"
       #pp sexp
     end
 
@@ -41,7 +41,7 @@ module NMTS
                   :instance_vars
 
     def initialize ast, initBlock
-      V_print self, "ROOT OBJ"
+      puts "ROOT OBJ"
     end
 
     def accept visitor

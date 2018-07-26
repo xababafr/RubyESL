@@ -7,7 +7,7 @@ class Sourcer < NMTS::Actor
   thread :behavior
 
   def behavior
-    V_print self, "\nSOURCER::BEHAVIOR()\n\n"
+    puts "\nSOURCER::BEHAVIOR()\n\n"
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)
@@ -44,7 +44,7 @@ register(:i, i, self.class.get_klass(), __method__)
   end
 
   def behavior
-    V_print self, "\nFIR::BEHAVIOR()\n\n"
+    puts "\nFIR::BEHAVIOR()\n\n"
 
     vals = [0,0,0,0,0]
     while(true)
@@ -81,12 +81,12 @@ class Sinker < NMTS::Actor
   thread :behavior
 
   def behavior
-    V_print self, "\nSINKER::BEHAVIOR()\n\n"
+    puts "\nSINKER::BEHAVIOR()\n\n"
     for i in 0...64
       datain = read(:outp)
       wait()
 
-      V_print self, "#{i} --> #{datain}"
+      puts "#{i} --> #{datain}"
 register(:i, i, self.class.get_klass(), __method__)
 register(:datain, datain, self.class.get_klass(), __method__)
 register(:i, i, self.class.get_klass(), __method__)

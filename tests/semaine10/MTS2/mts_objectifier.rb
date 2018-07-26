@@ -1,4 +1,3 @@
-require "./mts_data"
 require_relative "./mts_objects"
 
 module NMTS
@@ -19,12 +18,12 @@ module NMTS
 
       pp @class_code_h
 
-      #V_print self, "HASH FOR CLASSES"
+      #puts "HASH FOR CLASSES"
       #pp @class_code_h
       @class_code_h.keys.each do |klass|
         get_methods klass
       end
-      #V_print self, "HASH FOR METHODS"
+      #puts "HASH FOR METHODS"
       #pp @methods_code_h
     end
 
@@ -92,7 +91,7 @@ module NMTS
     end
 
     def parse_body body
-      V_print self, "PARSE_BODY(#{caller_locations(1,1)[0].label})"
+      puts "PARSE_BODY(#{caller_locations(1,1)[0].label})"
       if body != nil && body.type==:begin
         stmts=body.children.collect{|stmt| to_object(stmt)}
       else
@@ -236,7 +235,7 @@ module NMTS
     end
 
     def parse_and sexp
-      V_print self, "ANNND"
+      puts "ANNND"
       pp sexp.children
       lhs,rhs = sexp.children.collect{|e| to_object(e)}
       And.new(lhs,rhs)
@@ -286,7 +285,7 @@ module NMTS
 
     def parse_block sexp
       #caller,method,args=*sexp.children.collect{|e| to_object(e)}
-      V_print self, "BLOCKBLOCK"
+      puts "BLOCKBLOCK"
       pp sexp
       #pp sexp.children
       caller,args,body=sexp.children.collect{|e| to_object(e)}

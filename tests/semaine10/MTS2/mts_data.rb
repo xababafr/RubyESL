@@ -9,7 +9,7 @@ module NMTS
   class GlobalData
     include Singleton
 
-    attr_accessor :simulator, :channels, :local_vars, :instance_vars, :inouts, :verbose
+    attr_accessor :simulator, :channels, :local_vars, :instance_vars, :inouts
 
     # :simulator => <Simulator>
     #
@@ -44,7 +44,5 @@ module NMTS
   end
 
   DATA = GlobalData.instance
-
-  require "./mts_verbose"
 
 end

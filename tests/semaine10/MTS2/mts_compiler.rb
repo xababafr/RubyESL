@@ -39,7 +39,7 @@ module NMTS
 
     def simulate sys
       sys.ordered_actors.each do |actor|
-        V_print self, "#SIM_ACTOR : #{actor}"
+        puts "#SIM_ACTOR : #{actor}"
         actor.class.get_threads.each do |thread|
           fiber = Fiber.new do
             actor.method(thread).call
@@ -55,22 +55,22 @@ module NMTS
       # ast : { klass => [method1_, method2_ast,..], klass2 => ... }
       ast = get_ast filename
 
-      V_print self, "\n\n AST OBJ \n\n"
+      puts "\n\n AST OBJ \n\n"
       pp ast
-      V_print self, "\n\n"
+      puts "\n\n"
 
       # step 2 : add the probes to the file
       add_probes ( filename )
 
-      V_print self, "\n\n"
+      puts "\n\n"
 
       # step 3 : get the sys object
       # this step eval the code, so the DATA.xxx are also structured by now
       sys = eval_dsl ( "probes_" + filename )
 
-      V_print self, "\n\n SYS OBJ \n\n"
+      puts "\n\n SYS OBJ \n\n"
       pp sys
-      V_print self, "\n\n"
+      puts "\n\n"
 
       # step 4 : simulate the system to infer types
       # types are stored in the DATA singleton
@@ -78,14 +78,14 @@ module NMTS
       sys.type_instance_vars
 
       pp DATA.local_vars
-      V_print self, "\n\n"
+      puts "\n\n"
       pp DATA.instance_vars
 
       # contains all the data to recreate the overall system's constructor
       # entities names, constructor parameters, the order of actors....
       initBlock = nil
 
-      V_print self, "\n\n"
+      puts "\n\n"
       root = Root.new ast, initBlock # + he collects the data from DATA
 
       # step 5 : generate the systemC code thanks to DATA's singleton and AST

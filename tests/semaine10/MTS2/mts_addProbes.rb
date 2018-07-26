@@ -7,7 +7,7 @@ module NMTS
 
   class MyProcessor < AST::Processor
     def handler_missing node
-      #V_print self, "you're missing the #{node.type} node"
+      #puts "you're missing the #{node.type} node"
       node.children.each do |child|
         if child.is_a? AST::Node
           process(child)
@@ -26,8 +26,8 @@ module NMTS
 
     def on_class node
       #pp node
-      V_print self, "////#{node.children[0].children[1]}/////"
-      V_print self, "________________________________"
+      puts "////#{node.children[0].children[1]}/////"
+      puts "________________________________"
       classes_processor = ClassesProcessor.new
       classes_processor.process node
       @classes[node.children[0].children[1]] = classes_processor.vars
@@ -52,11 +52,11 @@ module NMTS
       @vars[node.children[0]] = []
       @currentMethod = node.children[0]
       handler_missing node
-      V_print self, "________________"
+      puts "________________"
     end
 
     def on_lvasgn node
-      V_print self, "FOUND A VAR : #{node.children[0]} ( context : #{@currentClass}.#{@currentMethod}() )"
+      puts "FOUND A VAR : #{node.children[0]} ( context : #{@currentClass}.#{@currentMethod}() )"
       @vars[@currentMethod] << node.children[0]
       @vars[@currentMethod].uniq!
     end
@@ -80,7 +80,7 @@ module NMTS
 
       varsToCheck.each do |varSymbol|
         if var_appears(node, varSymbol)
-          V_print self, "last line(#{varSymbol}) : #{node.children[-1].location.expression.last_line}"
+          puts "last line(#{varSymbol}) : #{node.children[-1].location.expression.last_line}"
           lineNb = node.children[-1].location.expression.last_line
           createRegisterCall(lineNb, varSymbol)
         end
@@ -89,7 +89,7 @@ module NMTS
 
     # creates the line of code : register(:symbol, symbol)
     def createRegisterCall lineNb, symbol
-      V_print self, "REGISTERCALL"
+      puts "REGISTERCALL"
       # s(:send, nil, :register,
       #   s(:sym, symbol),
       #   s(:lvar, symbol)
@@ -123,7 +123,7 @@ module NMTS
     end
 
     def handler_missing node
-      #V_print self, "you're missing the #{node.type} node"
+      #puts "you're missing the #{node.type} node"
       node.children.each do |child|
         if child.is_a? AST::Node
           process(child)
@@ -150,7 +150,7 @@ module NMTS
     end
 
     def on_def node
-      V_print self, "DEEEEFFFF #{@currentClass}.#{@currentMethod}()"
+      puts "DEEEEFFFF #{@currentClass}.#{@currentMethod}()"
       @currentMethod = node.children[0]
       pp node.children[2]
       if node.children[2].is_a? AST::Node
@@ -170,12 +170,12 @@ module NMTS
           end
         end
 
-        V_print self, "REGISTER CALLS ADDED TO #{@currentClass}.#{@currentMethod}() for the variables #{@classes[@currentClass][@currentMethod]}"
+        puts "REGISTER CALLS ADDED TO #{@currentClass}.#{@currentMethod}() for the variables #{@classes[@currentClass][@currentMethod]}"
         pp node.children[2]
       end
 
       # node.children.each do |child|
-      #   V_print self, "CHILD".center(80,'=')
+      #   puts "CHILD".center(80,'=')
       #   pp child
       # end
       handler_missing node
@@ -248,7 +248,7 @@ module NMTS
         end
       end
       file.close
-      File.open("probes_#{@filename}",'w'){|f| f.V_print self,(output)}
+      File.open("probes_#{@filename}",'w'){|f| f.puts(output)}
     end
   end
 
@@ -277,7 +277,7 @@ class Fir < NMTS::Actor
   end
 
   def behavior
-    V_print self, "\nFIR::BEHAVIOR()\n\n"
+    puts "\nFIR::BEHAVIOR()\n\n"
 
     vals = [0,0,0,0,0]
     while(true)
@@ -303,7 +303,7 @@ class Sourcer < NMTS::Actor
   output :inp
 
   def behavior
-    V_print self, "\nSOURCER::BEHAVIOR()\n\n"
+    puts "\nSOURCER::BEHAVIOR()\n\n"
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)
@@ -323,15 +323,15 @@ class Sinker <N MTS::Actor
   input  :outp
 
   def behavior
-    V_print self, "\nSINKER::BEHAVIOR()\n\n"
+    puts "\nSINKER::BEHAVIOR()\n\n"
     for i in 0...64
       datain = receive?(:outp)
       wait()
 
-      V_print self, "#{i} --> #{datain}"
+      puts "#{i} --> #{datain}"
     end
     #stop()
-    V_print self, "sim stopped??"
+    puts "sim stopped??"
   end
 
 end
@@ -355,7 +355,7 @@ end
 
   )
 
-  File.open("testingCode.rb",'w'){|f| f.V_print self,(ruby_code)}
+  File.open("testingCode.rb",'w'){|f| f.puts(ruby_code)}
 
   add_probes = NMTS::AddProbes.new "testingCode.rb"
   add_probes.generate_file

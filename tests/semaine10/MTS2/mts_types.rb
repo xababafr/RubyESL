@@ -147,7 +147,7 @@ if $PROGRAM_NAME == __FILE__
   type2 = NMTS::TypeFactory.create "dada", 3
   type3 = NMTS::TypeFactory.create nil, [1,2,3]
 
-  V_print self, " #{type1.cpp_signature} \n #{type2.cpp_signature} \n #{type3.cpp_signature}"
+  puts " #{type1.cpp_signature} \n #{type2.cpp_signature} \n #{type3.cpp_signature}"
   pp type1
   pp type2
   pp type3
