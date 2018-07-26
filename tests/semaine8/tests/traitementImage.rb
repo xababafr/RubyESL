@@ -65,7 +65,7 @@ sys=MTS::System.new("sys") do
     proc2 = Processing.new("proc2", "+")
 
     # here lies the order of the actors for now
-    set_actors([camera,proc1, proc2])
+    set_actors([camera, proc1, proc2])
 
     connect_as(:fifo10, camera.out1 => proc1.imgT)
     connect_as(:fifo10, camera.out2 => proc2.imgT)
