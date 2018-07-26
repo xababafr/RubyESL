@@ -6,7 +6,6 @@
 
 require "./mts_data"
 require "./mts_objects"
-require "./mts_analyzer"
 require "./mts_objectifier"
 require "./mts_addProbes"
 require "./mts_dsl"
@@ -23,9 +22,7 @@ module NMTS
     end
 
     def get_ast filename
-      analyzer = Analyzer.new
-      analyzer.open filename
-      objectifier = Objectifier.new analyzer.methods_code_h
+      objectifier = Objectifier.new filename
       objectifier.methods_objects
       # .methods_ast would give the original non objectified ast
     end
