@@ -6,6 +6,7 @@
 
 require "./mts_data"
 require "./mts_objects"
+require "./mts_analyzer"
 require "./mts_objectifier"
 require "./mts_addProbes"
 require "./mts_dsl"
@@ -22,7 +23,11 @@ module NMTS
     end
 
     def get_ast filename
-      nil
+      analyzer = Analyzer.new
+      analyzer.open filename
+      objectifier = Objectifier.new analyzer.methods_code_h
+      objectifier.methods_objects
+      # .methods_ast would give the original non objectified ast
     end
 
     def add_probes filename
@@ -52,6 +57,10 @@ module NMTS
       # step 1 : get the System's objectified AST and organised in a hash
       # ast : { klass => [method1_, method2_ast,..], klass2 => ... }
       ast = get_ast filename
+
+      puts "\n\n AST OBJ \n\n"
+      pp ast
+      puts "\n\n"
 
       # step 2 : add the probes to the file
       add_probes ( filename )
