@@ -36,7 +36,7 @@ module NMTS
 
     def simulate sys
       sys.ordered_actors.each do |actor|
-        puts "#SIM_ACTOR : {actor}"
+        puts "#SIM_ACTOR : #{actor}"
         actor.class.get_threads.each do |thread|
           fiber = Fiber.new do
             actor.method(thread).call

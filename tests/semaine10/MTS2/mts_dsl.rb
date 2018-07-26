@@ -6,6 +6,7 @@ require "./mts_types"
 module NMTS
 
   class InOut
+    attr_reader :klass, :sym, :dir
     def initialize klass, sym, dir
       @klass, @sym, @dir = klass, sym, dir
     end
@@ -20,8 +21,8 @@ module NMTS
     end
 
     def read
-      # the first reads returns the FIRST element written to the channel
-      @data.pop
+      @data.last
+      #@data.pop
     end
 
     def write val
@@ -42,9 +43,11 @@ module NMTS
         # send(:attr_accessor, name) # create the attribute
         # send(name, inout) # give it a value
         # lets create a method that retuns the corresponding inout
-        self.class.define_method(name) do
-          return DATA.inouts[name]
-        end
+        singleton_class.class_eval { attr_accessor "#{name}" }
+        send( "#{name}=", DATA.inouts[self.class.get_klass()][name] )
+        # self.define_singleton_method(name) do
+        #   return DATA.inouts[name]
+        # end
       end
     end
 
@@ -119,7 +122,7 @@ module NMTS
     def read inout_sym
       ret = nil
       DATA.channels.each do |channel|
-        if channel.to == inout_sym
+        if channel.to.sym == inout_sym && channel.to.klass == self.class.get_klass()
           ret = channel.read
           break
         end
@@ -129,7 +132,7 @@ module NMTS
 
     def write val, inout_sym
       DATA.channels.each do |channel|
-        if channel.from == inout_sym
+        if channel.from.sym == inout_sym && channel.from.klass == self.class.get_klass()
           channel.write val
           break
         end

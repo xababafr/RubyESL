@@ -2,6 +2,32 @@ require "../MTS2/mts_dsl"
 
 # FIR filter
 
+class Sourcer < NMTS::Actor
+  output :inp
+  thread :behavior
+
+  def behavior
+    puts "\nSOURCER::BEHAVIOR()\n\n"
+    tmp = 0
+    for i in 0...64
+      if (i > 23 && i < 29)
+register(:i, i)
+        tmp = 256
+      else
+        tmp = 0
+      end
+
+      write(tmp, :inp)
+      wait()
+register(:tmp, tmp)
+register(:i, i)
+    end
+register(:tmp, tmp)
+register(:i, i)
+  end
+
+end
+
 class Fir < NMTS::Actor
   input  :inp
   output :outp
@@ -29,6 +55,7 @@ register(:vals, vals)
 register(:j, j)
       end
       vals[0] = read(:inp)
+      pp vals
 
       ret = 0
       for i in 0...5
@@ -49,33 +76,6 @@ register(:ret, ret)
   end
 end
 
-
-class Sourcer < NMTS::Actor
-  output :inp
-  thread :behavior
-
-  def behavior
-    puts "\nSOURCER::BEHAVIOR()\n\n"
-    tmp = 0
-    for i in 0...64
-      if (i > 23 && i < 29)
-register(:i, i)
-        tmp = 256
-      else
-        tmp = 0
-      end
-
-      write(tmp, :inp)
-      wait()
-register(:tmp, tmp)
-register(:i, i)
-    end
-register(:tmp, tmp)
-register(:i, i)
-  end
-
-end
-
 class Sinker < NMTS::Actor
   input  :outp
   thread :behavior
@@ -92,8 +92,7 @@ register(:datain, datain)
 register(:i, i)
 register(:datain, datain)
     end
-    #stop()
-    puts "sim stopped??"
+    stop()
 register(:i, i)
 register(:datain, datain)
   end

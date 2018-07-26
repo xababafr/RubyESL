@@ -35,16 +35,17 @@ module NMTS
 
     def stop
       @mustStop = true
+      puts "[[  simulation stopped  ]]"
     end
 
     def step
+      puts " ==================[#{@time}]================== "
       @time += 1
       @fibers.each do |name,fiber|
         if fiber.alive?
           fiber.resume
         end
       end
-      puts " ==================[#{@time}]================== "
     end
 
     def run
