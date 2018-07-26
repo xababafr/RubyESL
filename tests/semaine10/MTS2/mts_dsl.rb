@@ -21,14 +21,21 @@ module NMTS
     end
 
     def read
-      @data.last
+      # we need to keep only last 2 values
+      if @data.size > 1
+        @data.pop
+      else
+        @data.first
+      end
       #@data.pop
     end
 
     def write val
       # because when we insert new data, we insert it at position 0
+      prev_val = @data.last # nil if doesnt exist, perfect for typefactory
       @data.insert 0, val
-      @type = TypeFactory.create nil, val
+      # not very useful for now
+      @type = TypeFactory.create prev_val, val
     end
   end #Channel
 
@@ -50,6 +57,10 @@ module NMTS
         # end
       end
     end
+
+    #
+    # CLASS METHODS (static)
+    #
 
     def self.init_data
       DATA.local_vars[get_klass()] ||= {} # method => { var_name => var_type_obj }
@@ -103,15 +114,9 @@ module NMTS
       s.split("::").last.to_sym
     end
 
-    # def add_thread method_sym
-    #   puts "dsl_addThread #{method_sym}"
-    #   @threads ||= []
-    #   @threads << method_sym
-    # end
-
-    def register name, var
-
-    end
+    #
+    # INSTANCE METHODS
+    #
 
     #
     # below this point, methods should be used only during simulation, not initialization
@@ -119,6 +124,15 @@ module NMTS
 
     # the use of break makes sure that only one connexion can be made per inout
     # more connexions will simply not be explored
+
+    def register name, val, klass, method
+      #puts "REGISTER : (#{klass}, #{method}) ==> (#{name}, #{var})"
+      DATA.local_vars[klass][method] ||= {}
+      DATA.local_vars[klass][method][name] ||= []
+      prev_val = DATA.local_vars[klass][method][name][0] # can be nil
+      DATA.local_vars[klass][method][name] = [val, TypeFactory.create(prev_val, val)]
+    end
+
     def read inout_sym
       ret = nil
       DATA.channels.each do |channel|
@@ -177,6 +191,17 @@ module NMTS
       # end
       # @ordered_actors = actors_classes.uniq!
       @ordered_actors = array
+    end
+
+    def type_instance_vars
+      @ordered_actors.each do |actor|
+        var_names = actor.instance_variables()
+        klass = actor.class.get_klass()
+        var_names.each do |vname|
+          val = actor.instance_variable_get("#{vname}")
+          DATA.instance_vars[klass][vname] = TypeFactory.create nil, val
+        end
+      end
     end
 
     def connect inoutsHash

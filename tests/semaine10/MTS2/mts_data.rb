@@ -18,14 +18,14 @@ module NMTS
     # :local_vars => {
     #   klass => {
     #     method => {
-    #       var_name => var_type_obj
+    #       var_name => [var_last_value,var_type_obj]
     #     }
     #   }
     # }
     #
     # :instance_vars => {
     #   klass => {
-    #     var_name => var_type_obj
+    #     var_name => [var_last_value,var_type_obj]
     #   }
     # }
     #

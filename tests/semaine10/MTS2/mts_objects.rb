@@ -5,12 +5,6 @@ require_relative "./visitors/visitor"
 module NMTS
 
   class Ast
-    attr_accessor :context, :type
-
-    def initialize context
-      @context = context
-    end
-
     def accept
       raise NotImplementedError.new
     end
@@ -38,23 +32,16 @@ module NMTS
 
   # the root of everything (starting point of the visitor)
   class Root < Ast
-    attr_accessor :methods, :classes, :sourceCode, :ordered_actors, :blockStr, :connexions, :inouts, :variables
+    attr_accessor :inouts,
+                  :astHash,
+                  :channels,
+                  :initBlock,
+                  :local_vars,
+                  :sourceCode,
+                  :instance_vars
 
-    def initialize methods, system
-      @methods = methods
-      @classes = {}
-      @methods.each do |methodArr, methodAst|
-        @classes[ methodArr[0] ] ||= []
-        @classes[ methodArr[0] ] << [ methodArr[1] , methodAst ]
-      end
-      @ordered_actors = system.ordered_actors
-      @blockStr = system.blockStr
-
-      @inouts = system.inouts
-      @connexions = system.connexions
-
-      puts "SYS SYS"
-      pp system
+    def initialize ast, initBlock
+      puts "ROOT OBJ"
     end
 
     def accept visitor

@@ -5,6 +5,7 @@
 # - do all those 3 and create a systemC code
 
 require "./mts_data"
+require "./mts_objects"
 require "./mts_objectifier"
 require "./mts_addProbes"
 require "./mts_dsl"
@@ -21,7 +22,7 @@ module NMTS
     end
 
     def get_ast filename
-      [nil, nil]
+      nil
     end
 
     def add_probes filename
@@ -48,9 +49,9 @@ module NMTS
     end
 
     def generate_systemc filename
-      ret = get_ast filename
-      # step 1 : get the System's structure and its objectified AST
-      struct, ast = ret[0], ret[1]
+      # step 1 : get the System's objectified AST and organised in a hash
+      # ast : { klass => [method1_, method2_ast,..], klass2 => ... }
+      ast = get_ast filename
 
       # step 2 : add the probes to the file
       add_probes ( filename )
@@ -68,6 +69,18 @@ module NMTS
       # step 4 : simulate the system to infer types
       # types are stored in the DATA singleton
       simulate sys
+      sys.type_instance_vars
+
+      pp DATA.local_vars
+      puts "\n\n"
+      pp DATA.instance_vars
+
+      # contains all the data to recreate the overall system's constructor
+      # entities names, constructor parameters, the order of actors....
+      initBlock = nil
+
+      puts "\n\n"
+      root = Root.new ast, initBlock # + he collects the data from DATA
 
       # step 5 : generate the systemC code thanks to DATA's singleton and AST
     end

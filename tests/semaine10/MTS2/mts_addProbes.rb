@@ -95,7 +95,7 @@ module NMTS
       #   s(:lvar, symbol)
       # )
       @registerCalls[lineNb] ||= []
-      @registerCalls[lineNb] << "register(:#{symbol}, #{symbol})\n"
+      @registerCalls[lineNb] << "register(:#{symbol}, #{symbol}, self.class.get_klass(), __method__)\n"
     end
 
     # takes a node as an input, and returns true if the node contains the var, false otherwise

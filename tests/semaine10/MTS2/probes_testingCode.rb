@@ -11,7 +11,7 @@ class Sourcer < NMTS::Actor
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)
-register(:i, i)
+register(:i, i, self.class.get_klass(), __method__)
         tmp = 256
       else
         tmp = 0
@@ -19,11 +19,11 @@ register(:i, i)
 
       write(tmp, :inp)
       wait()
-register(:tmp, tmp)
-register(:i, i)
+register(:tmp, tmp, self.class.get_klass(), __method__)
+register(:i, i, self.class.get_klass(), __method__)
     end
-register(:tmp, tmp)
-register(:i, i)
+register(:tmp, tmp, self.class.get_klass(), __method__)
+register(:i, i, self.class.get_klass(), __method__)
   end
 
 end
@@ -40,7 +40,7 @@ class Fir < NMTS::Actor
     end
 
     super(name)
-register(:i, i)
+register(:i, i, self.class.get_klass(), __method__)
   end
 
   def behavior
@@ -51,8 +51,8 @@ register(:i, i)
       for i in 0...4
         j = 4-i
         vals[j] = vals[j-1]
-register(:vals, vals)
-register(:j, j)
+register(:vals, vals, self.class.get_klass(), __method__)
+register(:j, j, self.class.get_klass(), __method__)
       end
       vals[0] = read(:inp)
       pp vals
@@ -64,15 +64,15 @@ register(:j, j)
 
       write(ret, :outp)
       wait()
-register(:vals, vals)
-register(:i, i)
-register(:j, j)
-register(:ret, ret)
+register(:vals, vals, self.class.get_klass(), __method__)
+register(:i, i, self.class.get_klass(), __method__)
+register(:j, j, self.class.get_klass(), __method__)
+register(:ret, ret, self.class.get_klass(), __method__)
     end
-register(:vals, vals)
-register(:i, i)
-register(:j, j)
-register(:ret, ret)
+register(:vals, vals, self.class.get_klass(), __method__)
+register(:i, i, self.class.get_klass(), __method__)
+register(:j, j, self.class.get_klass(), __method__)
+register(:ret, ret, self.class.get_klass(), __method__)
   end
 end
 
@@ -87,14 +87,14 @@ class Sinker < NMTS::Actor
       wait()
 
       puts "#{i} --> #{datain}"
-register(:i, i)
-register(:datain, datain)
-register(:i, i)
-register(:datain, datain)
+register(:i, i, self.class.get_klass(), __method__)
+register(:datain, datain, self.class.get_klass(), __method__)
+register(:i, i, self.class.get_klass(), __method__)
+register(:datain, datain, self.class.get_klass(), __method__)
     end
     stop()
-register(:i, i)
-register(:datain, datain)
+register(:i, i, self.class.get_klass(), __method__)
+register(:datain, datain, self.class.get_klass(), __method__)
   end
 
 end
