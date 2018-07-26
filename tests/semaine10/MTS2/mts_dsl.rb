@@ -44,7 +44,7 @@ module NMTS
     attr_reader :name, :threads
 
     def initialize name
-      puts "dsl_newActor #{self.class.get_klass()}"
+      V_print self, "dsl_newActor #{self.class.get_klass()}"
       @name = name
       DATA.inouts[self.class.get_klass()].each do |name, inout|
         # send(:attr_accessor, name) # create the attribute
@@ -69,7 +69,7 @@ module NMTS
     end
 
     def self.input *args
-      puts "dsl_input #{get_klass()} => #{args}"
+      V_print self, "dsl_input #{get_klass()} => #{args}"
       if ( DATA.local_vars[get_klass()].nil? ||
            DATA.instance_vars[get_klass()].nil? ||
            DATA.inouts[get_klass()].nil? )
@@ -83,7 +83,7 @@ module NMTS
     end
 
     def self.output *args
-      puts "dsl_output #{get_klass()} => #{args}"
+      V_print self, "dsl_output #{get_klass()} => #{args}"
       if ( DATA.local_vars[get_klass()].nil? ||
            DATA.instance_vars[get_klass()].nil? ||
            DATA.inouts[get_klass()].nil? )
@@ -97,7 +97,7 @@ module NMTS
     end
 
     def self.thread *args
-      puts "dsl_thread #{get_klass()} => #{args}"
+      V_print self, "dsl_thread #{get_klass()} => #{args}"
       @@threads ||= []
       args.each do |thread|
         @@threads << thread
@@ -126,7 +126,7 @@ module NMTS
     # more connexions will simply not be explored
 
     def register name, val, klass, method
-      #puts "REGISTER : (#{klass}, #{method}) ==> (#{name}, #{var})"
+      #V_print self, "REGISTER : (#{klass}, #{method}) ==> (#{name}, #{var})"
       DATA.local_vars[klass][method] ||= {}
       DATA.local_vars[klass][method][name] ||= []
       prev_val = DATA.local_vars[klass][method][name][0] # can be nil
@@ -205,7 +205,7 @@ module NMTS
     end
 
     def connect inoutsHash
-      puts "dsl_connect #{inoutsHash}"
+      V_print self, "dsl_connect #{inoutsHash}"
       inout1, inout2 = inoutsHash.keys.first, inoutsHash.values.first
       DATA.channels << (Channel.new inout1, inout2)
     end

@@ -35,11 +35,11 @@ module NMTS
 
     def stop
       @mustStop = true
-      puts "[[  simulation stopped  ]]"
+      V_print self, "[[  simulation stopped  ]]"
     end
 
     def step
-      puts " ==================[#{@time}]================== "
+      V_print self, " ==================[#{@time}]================== "
       @time += 1
       @fibers.each do |name,fiber|
         if fiber.alive?
@@ -49,15 +49,15 @@ module NMTS
     end
 
     def run
-      puts "[[  simulation starts  ]]"
-      puts "\n"
+      V_print self, "[[  simulation starts  ]]"
+      V_print self, "\n"
 
       while keep_going do
         step
       end
 
-      puts "\n"
-      puts "[[   simulation ends   ]]"
+      V_print self, "\n"
+      V_print self, "[[   simulation ends   ]]"
     end
   end #Simulator
 
@@ -129,7 +129,7 @@ if $PROGRAM_NAME == __FILE__
       datain = receive(:outp)
       wait()
 
-      puts "#{i} --> #{datain}"
+      V_print self, "#{i} --> #{datain}"
     end
     stop()
   end

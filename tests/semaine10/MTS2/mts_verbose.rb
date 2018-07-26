@@ -17,7 +17,7 @@ module NMTS
 
   def V_pp obj, var
     if check_verbose obj
-      pp var
+      pp self, var
     end
   end
 
