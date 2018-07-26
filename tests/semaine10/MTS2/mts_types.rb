@@ -1,6 +1,6 @@
 # this file defines the tyoes objects needed for the type inferring, and the type factory
 
-module MTS
+module NMTS
 
   class Type
     def identifier
@@ -143,9 +143,9 @@ module MTS
 end
 
 if $PROGRAM_NAME == __FILE__
-  type1 = MTS::TypeFactory.create nil, ["dada", 4, [3.2,6]]
-  type2 = MTS::TypeFactory.create "dada", 3
-  type3 = MTS::TypeFactory.create nil, [1,2,3]
+  type1 = NMTS::TypeFactory.create nil, ["dada", 4, [3.2,6]]
+  type2 = NMTS::TypeFactory.create "dada", 3
+  type3 = NMTS::TypeFactory.create nil, [1,2,3]
 
   puts " #{type1.cpp_signature} \n #{type2.cpp_signature} \n #{type3.cpp_signature}"
   pp type1

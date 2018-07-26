@@ -3,7 +3,7 @@
 
 require 'singleton'
 
-module MTS
+module NMTS
 
   # globals for the module
   class GlobalData
@@ -36,7 +36,10 @@ module MTS
     # }
 
     def initialize
-
+      self.channels ||= []
+      self.local_vars ||= {}
+      self.instance_vars ||= {}
+      self.inouts ||= {}
     end
   end
 

@@ -1,5 +1,7 @@
-require "./visitor"
+require_relative "./visitor"
 
-class SystemC < Visitor
+module NMTS
+  class SystemC < Visitor
 
+  end
 end

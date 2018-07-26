@@ -2,7 +2,7 @@
 
 require_relative "./visitors/visitor"
 
-module MTS
+module NMTS
 
   class Ast
     attr_accessor :context, :type

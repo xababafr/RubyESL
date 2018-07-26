@@ -4,7 +4,7 @@ require "fiber"
 require "singleton"
 require "./mts_data"
 
-module MTS
+module NMTS
 
 
   class Simulator

@@ -3,7 +3,7 @@
 
 require 'parser/current'
 
-module MTS
+module NMTS
 
   class MyProcessor < AST::Processor
     def handler_missing node
@@ -260,11 +260,11 @@ end
 if $PROGRAM_NAME == __FILE__
   ruby_code = %q(
 
-require "../MTS/mts_actors_model"
+require "../MTS2/mts_dsl"
 
 # FIR filter
 
-class Fir < MTS::Actor
+class Fir < NMTS::Actor
   input  :inp
   output :outp
 
@@ -299,7 +299,7 @@ class Fir < MTS::Actor
 end
 
 
-class Sourcer < MTS::Actor
+class Sourcer < NMTS::Actor
   output :inp
 
   def behavior
@@ -319,7 +319,7 @@ class Sourcer < MTS::Actor
 
 end
 
-class Sinker < MTS::Actor
+class Sinker <N MTS::Actor
   input  :outp
 
   def behavior
@@ -338,7 +338,7 @@ end
 
 # |Sourcer| ==inp==> |Fir| ==outp==> |Sinker|
 
-sys=MTS::System.new("sys") do
+sys=NMTS::System.new("sys") do
     ucoef = [18,77,107,77,18]
 
     src0 = Sourcer.new("src0")
@@ -349,14 +349,14 @@ sys=MTS::System.new("sys") do
     # do they really need to have an order? I dont think so
     set_actors([src0, fir0, snk0])
 
-    connect_as(:csp, src0.inp => fir0.inp)
-    connect_as(:csp, fir0.outp => snk0.outp)
+    connect_as(src0.inp => fir0.inp)
+    connect_as(fir0.outp => snk0.outp)
 end
 
   )
 
   File.open("testingCode.rb",'w'){|f| f.puts(ruby_code)}
 
-  add_probes = MTS::AddProbes.new "testingCode.rb"
+  add_probes = NMTS::AddProbes.new "testingCode.rb"
   add_probes.generate_file
 end

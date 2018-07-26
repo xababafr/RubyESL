@@ -3,7 +3,7 @@ require "./mts_data"
 require "./mts_simulator"
 require "./mts_types"
 
-module MTS
+module NMTS
 
   class InOut
     def initialize klass, sym, dir
@@ -36,34 +36,83 @@ module MTS
     attr_reader :name, :threads
 
     def initialize name
-      @name, @threads = name, []
+      puts "dsl_newActor #{self.class.get_klass()}"
+      @name = name
+      DATA.inouts[self.class.get_klass()].each do |name, inout|
+        # send(:attr_accessor, name) # create the attribute
+        # send(name, inout) # give it a value
+        # lets create a method that retuns the corresponding inout
+        self.class.define_method(name) do
+          return DATA.inouts[name]
+        end
+      end
+    end
+
+    def self.init_data
+      DATA.local_vars[get_klass()] ||= {} # method => { var_name => var_type_obj }
+      DATA.instance_vars[get_klass()] ||= {}  # var_name => var_type_obj
+      DATA.inouts[get_klass()] ||= {} # inout_name => inout_obj
     end
 
     def self.input *args
+      puts "dsl_input #{get_klass()} => #{args}"
+      if ( DATA.local_vars[get_klass()].nil? ||
+           DATA.instance_vars[get_klass()].nil? ||
+           DATA.inouts[get_klass()].nil? )
+        init_data()
+      end
+
       args.each do |input|
         inout = ( InOut.new get_klass(), input, :input )
-        DATA.inouts[get_klass()] = inout
-        send(:attr_accessor, input) # create the attribute
-        send(input, inout ) # give it a value
+        DATA.inouts[get_klass()][input] = inout
       end
     end
 
     def self.output *args
+      puts "dsl_output #{get_klass()} => #{args}"
+      if ( DATA.local_vars[get_klass()].nil? ||
+           DATA.instance_vars[get_klass()].nil? ||
+           DATA.inouts[get_klass()].nil? )
+        init_data()
+      end
+
       args.each do |output|
         inout = ( InOut.new get_klass(), output, :output )
-        DATA.inouts[get_klass()] = inout
-        send(:attr_accessor, output)
-        send(output, inout) )
+        DATA.inouts[get_klass()][output] = inout
       end
     end
 
-    def get_klass
-      self.class.to_s.to_sym
+    def self.thread *args
+      puts "dsl_thread #{get_klass()} => #{args}"
+      @@threads ||= []
+      args.each do |thread|
+        @@threads << thread
+      end
     end
 
-    def add_thread method_sym
-      @threads << method_sym
+    def self.get_threads
+      @@threads ||= []
+      @@threads
     end
+
+    def self.get_klass
+      s = self.to_s
+      s.split("::").last.to_sym
+    end
+
+    # def add_thread method_sym
+    #   puts "dsl_addThread #{method_sym}"
+    #   @threads ||= []
+    #   @threads << method_sym
+    # end
+
+    def register name, var
+
+    end
+
+    #
+    # below this point, methods should be used only during simulation, not initialization
+    #
 
     # the use of break makes sure that only one connexion can be made per inout
     # more connexions will simply not be explored
@@ -101,42 +150,36 @@ module MTS
 
   class System
 
-    attr_accessor :reader
+    attr_accessor :reader, :ordered_actors
 
     def initialize(name, &block)
       @name = name
       @ordered_actors = []
 
       # here are the 3 vars that contains the types of all the system's content
-      DATA.channels = []
-      DATA.local_vars = {}
-      DATA.instance_vars = {}
+      DATA.channels ||= []
+      DATA.local_vars ||= {}
+      DATA.instance_vars ||= {}
       # channels already have a chan.type
 
-      DATA.inouts = {}
+      DATA.inouts ||= {}
 
       self.instance_eval(&block)
     end
 
     def set_actors array
+      # actors_classes = []
+      # array.each do |actor|
+      #   actors_classes << actor.class.get_klass()
+      # end
+      # @ordered_actors = actors_classes.uniq!
       @ordered_actors = array
-      # now, we can create the structures of the typing vars
-
-      actors_classes = []
-      @ordered_actors.each do |actor|
-        actors_classes << actor.get_klass()
-      end
-      actors_classes.uniq!
-
-      actors_classes.each do |class_sym|
-        DATA.local_vars[class_sym] = {} # method => { var_name => var_type_obj }
-        DATA.instance_vars[class_sym] = {}  # var_name => var_type_obj
-        DATA.inouts[class_sym] = {} # inout_name => inout_obj
-      end
     end
 
-    def connect inout1, inout2
-      DATA.channels << Channel.new inout1, inout2
+    def connect inoutsHash
+      puts "dsl_connect #{inoutsHash}"
+      inout1, inout2 = inoutsHash.keys.first, inoutsHash.values.first
+      DATA.channels << (Channel.new inout1, inout2)
     end
 
     # returns the channel that corresponds to this inout

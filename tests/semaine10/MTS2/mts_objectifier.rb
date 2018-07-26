@@ -2,7 +2,7 @@
 
 require_relative "./mts_objects"
 
-module MTS
+module NMTS
   class Objectifier
 
     def to_object sexp
