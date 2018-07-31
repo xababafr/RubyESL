@@ -83,12 +83,24 @@ module NMTS
 
       # contains all the data to recreate the overall system's constructor
       # entities names, constructor parameters, the order of actors....
-      initBlock = nil
+
+      # {
+      #   [:Sourcer, "src0"]=>[[:req, :name]],
+      #   [:Fir, "fir0"]=>[[:req, :name], [:req, :ucoef]],
+      #   [:Sinker, "snk0"]=>[[:req, :name]]
+      # }
+
+      initParams = {}
+      sys.ordered_actors.each do |actor|
+        key = [actor.class.get_klass(), actor.name]
+        initParams[key] = actor.method(:initialize).parameters
+      end
 
       puts "\n\n"
-      root = Root.new ast, initBlock # + he collects the data from DATA
+      root = Root.new ast, initParams # + it collects the data from DATA
 
       # step 5 : generate the systemC code thanks to DATA's singleton and AST
+      root.accept SystemC.new
     end
   end #Compiler
 

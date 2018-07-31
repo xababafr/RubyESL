@@ -1,6 +1,6 @@
 # this code contains all the objects necessary to create an AST
 
-require_relative "./visitors/visitor"
+require_relative "./visitors/systemc"
 
 module NMTS
 
@@ -35,18 +35,27 @@ module NMTS
     attr_accessor :inouts,
                   :astHash,
                   :channels,
-                  :initBlock,
-                  :local_vars,
+                  :initParams,
+                  :localVars,
                   :sourceCode,
-                  :instance_vars
+                  :instanceVars
 
-    def initialize ast, initBlock
-      puts "ROOT OBJ"
+    def initialize ast, initParams
+      @inouts = DATA.inouts
+      @astHash = ast
+      @channels = DATA.channels
+      @initParams = initParams
+      @localVars = DATA.local_vars
+      @instanceVars = DATA.instance_vars
+      puts "ROOT OBJ INITIALIZED"
     end
 
     def accept visitor
       visitor.visitRoot self
-      @sourceCode = visitor.code.get_source
+      @sourceCode = visitor.code.source
+
+      puts "SOURCE CODE"
+      puts @sourceCode
     end
   end
 
