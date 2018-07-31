@@ -90,14 +90,17 @@ module NMTS
       #   [:Sinker, "snk0"]=>[[:req, :name]]
       # }
 
-      initParams = {}
+      initParams, threads = {}, {}
       sys.ordered_actors.each do |actor|
         key = [actor.class.get_klass(), actor.name]
         initParams[key] = actor.method(:initialize).parameters
+        threads[actor.class.get_klass()] = actor.class.get_threads()
       end
 
+
+
       puts "\n\n"
-      root = Root.new ast, initParams # + it collects the data from DATA
+      root = Root.new ast, initParams, threads # + it collects the data from DATA
 
       # step 5 : generate the systemC code thanks to DATA's singleton and AST
       root.accept SystemC.new

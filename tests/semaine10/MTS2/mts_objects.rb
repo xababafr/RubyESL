@@ -33,16 +33,18 @@ module NMTS
   # the root of everything (starting point of the visitor)
   class Root < Ast
     attr_accessor :inouts,
+                  :threads,
                   :astHash,
                   :channels,
                   :initParams,
                   :localVars,
                   :sourceCode,
                   :rootIterate,
-                  :instanceVars,
+                  :instanceVars
 
-    def initialize ast, initParams
+    def initialize ast, initParams, threads
       @inouts = DATA.inouts
+      @threads = threads
       @astHash = ast
       @channels = DATA.channels
       @initParams = initParams
@@ -72,28 +74,28 @@ module NMTS
       #   ...
       # }
 
-      @rootInterate = {}
+      @rootIterate = {}
       @astHash.each do |methArr, methAst|
         modul, method = methArr[0], methArr[1]
-        @rootInterate[modul] ||= {}
-        @rootInterate[modul][:methods] ||= []
+        @rootIterate[modul] ||= {}
+        @rootIterate[modul][:methods] ||= []
 
         methHash = {
           :name => method,
-          :type => TypeFactory.create(nil, nil), # void
+          :type => nil ,#TypeFactory.create(nil, nil), # void
           :args => [],
           :ast  => methAst
         }
-        @rootInterate[modul][:methods] << methAst
+        @rootIterate[modul][:methods] << methHash
 
-        @rootInterate[modul][:inouts] = []
+        @rootIterate[modul][:inouts] = []
         @inouts[modul].each do |name, inoutObj|
-          @rootInterate[modul][:inouts] << inoutObj
+          @rootIterate[modul][:inouts] << inoutObj
         end
       end
 
       puts "ROOT ITERATE OBJ : \n"
-      pp @rootInterate
+      pp @rootIterate
     end
 
     def accept visitor

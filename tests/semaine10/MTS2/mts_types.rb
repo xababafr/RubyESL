@@ -19,7 +19,7 @@ module NMTS
         @type.to_s
     end
 
-    def cpp_signature
+    def cpp_signature name = nil
       # this method should tell the user if the var has a "baseline type" ( = bool, int, string)
       # yes, string is not a baseline type, but it can be written like baseline types, so, it matters not
       # or a "object type" ( UserDefinedClass, ...) (basically, baseline = can be instanciate like a bool, without proper constructor call)
@@ -29,12 +29,12 @@ module NMTS
       klass, signature, args = @type.to_s, nil, nil
 
       baselineTypesMapping = {
-        "TrueClass"  => "bool"   ,
-        "FalseClass" => "bool"   ,
-        "Boolean"    => "bool"   ,
-        "String"     => "string" ,
-        "Integer"    => "int"    ,
-        "Float"      => "Double" ,
+        "TrueClass"  => "bool"        ,
+        "FalseClass" => "bool"        ,
+        "Boolean"    => "bool"        ,
+        "String"     => "string"      ,
+        "Integer"    => "sc_uint<32>" ,
+        "Float"      => "Double"      ,
         "NilClass"   => "void"
       }
 
@@ -53,7 +53,7 @@ module NMTS
       #   :args       => args
       # }
 
-      signature
+      "#{signature} #{name}"
     end
 
     # a single value
@@ -95,10 +95,12 @@ module NMTS
             "[#{@subType.identifier}]"
         end
 
-        def cpp_signature
-          #if @subType.is_a?(SingleType)
-          "#{@subType.cpp_signature}[#{@size}]"
-          #end
+        def cpp_signature name = nil
+          if name.nil?
+            "#{@subType.cpp_signature}[#{@size}]"
+          else
+            "#{@subType.cpp_signature} #{name}[#{@size}]"
+          end
         end
 
         # a single subType (Single, Union or Array type)

@@ -14,10 +14,11 @@ module NMTS
 
 
   class Channel
-    attr_reader :from, :to, :type
+    attr_accessor :from, :to, :type, :name
 
     def initialize inout1, inout2
       @from, @to, @data, @type = inout1, inout2, [], nil
+      @name = "#{from.klass.to_s.downcase}_#{@from.sym}_#{to.klass.to_s.downcase}_#{to.sym}_sig"
     end
 
     def read
@@ -102,6 +103,7 @@ module NMTS
       args.each do |thread|
         @@threads << thread
       end
+      @@threads.uniq!
     end
 
     def self.get_threads
@@ -174,7 +176,7 @@ module NMTS
       @ordered_actors = []
 
       # here are the 3 vars that contains the types of all the system's content
-      DATA.channels ||= []
+      DATA.channels = []
       DATA.local_vars ||= {}
       DATA.instance_vars ||= {}
       # channels already have a chan.type
@@ -198,8 +200,12 @@ module NMTS
         var_names = actor.instance_variables()
         klass = actor.class.get_klass()
         var_names.each do |vname|
-          val = actor.instance_variable_get("#{vname}")
-          DATA.instance_vars[klass][vname] = TypeFactory.create nil, val
+          # we remove the @ at the beginning of the name
+          vvvname = ((vname.to_s)[1..-1]).to_sym
+          if !DATA.inouts[actor.class.get_klass()].keys.include?( vvvname )
+            val = actor.instance_variable_get("#{vname}")
+            DATA.instance_vars[klass][vvvname] = TypeFactory.create nil, val
+          end
         end
       end
     end
@@ -212,16 +218,16 @@ module NMTS
 
     # returns the channel that corresponds to this inout
     # breaks ==> no doublons allowed
-    def get_channel inout
-      ret = nil
-      DATA.channels.each do |channel|
-        if channel.from == inout_sym || channel.to == inout_sym
-          ret = channel
-          break
-        end
-      end
-      ret
-    end
+    # def get_channel inout
+    #   ret = nil
+    #   DATA.channels.each do |channel|
+    #     if channel.from == inout_sym || channel.to == inout_sym
+    #       ret = channel
+    #       break
+    #     end
+    #   end
+    #   ret
+    # end
 
   end #System
 
