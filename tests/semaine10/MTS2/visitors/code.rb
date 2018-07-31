@@ -34,7 +34,7 @@ module NMTS
 
     def newline i = 1
       while i!= 0
-        @code << ""
+        @lines << ""
         i-= 1
       end
     end

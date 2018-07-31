@@ -34,7 +34,8 @@ module NMTS
         "Boolean"    => "bool"   ,
         "String"     => "string" ,
         "Integer"    => "int"    ,
-        "Float"      => "Double"
+        "Float"      => "Double" ,
+        "NilClass"   => "void"
       }
 
       isBaseline =  baselineTypesMapping.keys.include?(klass)
@@ -146,9 +147,16 @@ if $PROGRAM_NAME == __FILE__
   type1 = NMTS::TypeFactory.create nil, ["dada", 4, [3.2,6]]
   type2 = NMTS::TypeFactory.create "dada", 3
   type3 = NMTS::TypeFactory.create nil, [1,2,3]
+  type4 = NMTS::TypeFactory.create nil, nil
 
-  puts " #{type1.cpp_signature} \n #{type2.cpp_signature} \n #{type3.cpp_signature}"
+  puts "
+    #{type1.cpp_signature} \n
+    #{type2.cpp_signature} \n
+    #{type3.cpp_signature} \n
+    #{type4.cpp_signature}
+  "
   pp type1
   pp type2
   pp type3
+  pp type4
 end

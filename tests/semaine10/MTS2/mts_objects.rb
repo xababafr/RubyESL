@@ -38,7 +38,8 @@ module NMTS
                   :initParams,
                   :localVars,
                   :sourceCode,
-                  :instanceVars
+                  :rootIterate,
+                  :instanceVars,
 
     def initialize ast, initParams
       @inouts = DATA.inouts
@@ -47,14 +48,59 @@ module NMTS
       @initParams = initParams
       @localVars = DATA.local_vars
       @instanceVars = DATA.instance_vars
+
+      createIterativeObject()
       puts "ROOT OBJ INITIALIZED"
+    end
+
+    def createIterativeObject
+      # the goal here is to create a unique object that containers
+      # everything the systemC ROOT visitor needs to print its code.
+      # we create this object by gathering and reorganizing
+      # the data registered in the initialize() method
+
+      # {
+      #   module_name => {
+      #     :inouts => [ inout1, inout2, ... ],
+      #     :methods => [{
+      #       :name => ... ,
+      #       :type => ... ,
+      #       :args => ... ,
+      #       :ast  => ...
+      #     }]
+      #   },
+      #   ...
+      # }
+
+      @rootInterate = {}
+      @astHash.each do |methArr, methAst|
+        modul, method = methArr[0], methArr[1]
+        @rootInterate[modul] ||= {}
+        @rootInterate[modul][:methods] ||= []
+
+        methHash = {
+          :name => method,
+          :type => TypeFactory.create(nil, nil), # void
+          :args => [],
+          :ast  => methAst
+        }
+        @rootInterate[modul][:methods] << methAst
+
+        @rootInterate[modul][:inouts] = []
+        @inouts[modul].each do |name, inoutObj|
+          @rootInterate[modul][:inouts] << inoutObj
+        end
+      end
+
+      puts "ROOT ITERATE OBJ : \n"
+      pp @rootInterate
     end
 
     def accept visitor
       visitor.visitRoot self
       @sourceCode = visitor.code.source
 
-      puts "SOURCE CODE"
+      puts "SOURCE CODE : \n"
       puts @sourceCode
     end
   end

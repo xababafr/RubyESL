@@ -13,6 +13,15 @@ module NMTS
 
     def visitRoot node
       code << "#include <systemc.h>"
+      code.newline
+      node.rootIterate.each do |moduleName, moduleHash|
+        code << "SC_MODULE( #{moduleName} ) {"
+        code.wrap
+          code << "..."
+        code.unwrap
+        code << "}"
+        code.newline
+      end
     end
 
     def visitUnknown node

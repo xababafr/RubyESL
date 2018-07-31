@@ -77,9 +77,9 @@ module NMTS
       simulate sys
       sys.type_instance_vars
 
-      pp DATA.local_vars
-      puts "\n\n"
-      pp DATA.instance_vars
+      # pp DATA.local_vars
+      # puts "\n\n"
+      # pp DATA.instance_vars
 
       # contains all the data to recreate the overall system's constructor
       # entities names, constructor parameters, the order of actors....
