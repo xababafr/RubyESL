@@ -4,9 +4,9 @@ require "../MTS2/mts_dsl"
 
 class Sourcer < NMTS::Actor
   output :inp
-  thread :behavior
+  thread :source
 
-  def behavior
+  def source
     puts "\nSOURCER::BEHAVIOR()\n\n"
     tmp = 0
     for i in 0...64
@@ -39,7 +39,7 @@ class Fir < NMTS::Actor
       @coef[i] = ucoef[i]
     end
 
-    super(name)
+    super(name, ucoef)
 register(:i, i, self.class.get_klass(), __method__)
   end
 
@@ -78,9 +78,9 @@ end
 
 class Sinker < NMTS::Actor
   input  :outp
-  thread :behavior
+  thread :sink
 
-  def behavior
+  def sink
     puts "\nSINKER::BEHAVIOR()\n\n"
     for i in 0...64
       datain = read(:outp)

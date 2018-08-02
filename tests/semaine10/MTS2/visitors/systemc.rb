@@ -1,5 +1,6 @@
 require_relative "./code"
 require_relative "./visitor"
+require_relative "./convert"
 
 module NMTS
 
@@ -58,18 +59,18 @@ module NMTS
         end
         code.newline
 
-        print 'initParams : '
-        print node.initParams
+        # print 'initParams : '
+        # print node.initParams
 
         # if there needs to be one, write the special constructor
         node.initParams.each do |idArray, paramsArray|
           klass, entity = idArray[0], idArray[1]
-          if klass == moduleName && paramsArray.size > 1
+          if klass == moduleName && paramsArray.size > 1 && paramsArray[1][0] != :rest
             # same func as below with the sys's constructor
             paramStr = ""
             paramsArray.each_with_index do |par, idx|
               if idx != 0
-                paramStr += ", void #{paramsArray[idx][1]}"
+                paramStr += ", #{paramsArray[idx][2][:typ].cpp_signature(paramsArray[idx][1])}"
               end
             end
             code << "#{moduleName}(sc_module_name sc_m_name#{paramStr})"
@@ -93,6 +94,15 @@ module NMTS
         end
         code.unwrap
         code << "};"
+        code.newline
+
+        node.threads[moduleName].each do |thread|
+          code << "void #{thread}() {"
+          code.wrap
+          code << "..."
+          code.unwrap
+          code << "}"
+        end
         code.newline
 
         code << "..."
@@ -129,25 +139,40 @@ module NMTS
       code.wrap
       node.initParams.each do |idArray, paramsArray|
         klass, entity = idArray[0], idArray[1]
-        paramStr = ""
+        paramStr, initStr = "", []
         paramsArray.each_with_index do |par, idx|
-          if idx != 0
-            paramStr += ", void #{paramsArray[idx][1]}"
+          if idx != 0 && paramsArray[idx][0] != :rest
+            paramStr += ", #{paramsArray[idx][1]}"
+
+            # argHash
+            initStr << "#{paramsArray[idx][2][:typ].cpp_signature(paramsArray[idx][1])} = #{Convert::value(paramsArray[idx][2][:val])};"
           end
+        end
+        initStr.each do |iStr|
+          code << iStr
         end
         code << "#{entity} = new #{klass}(\"#{entity}\"#{paramStr});"
         code << "#{entity}->clk( clk_sig );"
 
-        # DOESNT WORK FOR NOW
         node.channels.each do |channel|
-          if channel.from.sym == klass
+          if channel.from.klass == klass
             code << "#{entity}->#{channel.from.sym}( #{channel.name}  );"
           end
-          if channel.to.sym == klass
+          if channel.to.klass == klass
             code << "#{entity}->#{channel.to.sym}( #{channel.name}  );"
           end
         end
         code.newline
+      end
+      code.unwrap
+      code << "}"
+      code.newline
+
+      code << "~System(){"
+      code.wrap
+      node.initParams.each do |idArray, paramsArray|
+        klass, entity = idArray[0], idArray[1]
+        code << "delete #{entity};"
       end
       code.unwrap
       code << "}"

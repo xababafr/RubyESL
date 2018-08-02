@@ -42,10 +42,19 @@ module NMTS
 
 
   class Actor
-    attr_reader :name, :threads
+    attr_reader :name, :threads, :initArgs
 
-    def initialize name
+    def initialize name, *args
       puts "dsl_newActor #{self.class.get_klass()}"
+      @initArgs = []
+      if args.size > 0
+        args.each do |arg|
+          @initArgs << {
+            :val => arg,
+            :typ => (TypeFactory.create nil, arg)
+          }
+        end
+      end
       @name = name
       DATA.inouts[self.class.get_klass()].each do |name, inout|
         # send(:attr_accessor, name) # create the attribute
@@ -99,15 +108,17 @@ module NMTS
 
     def self.thread *args
       puts "dsl_thread #{get_klass()} => #{args}"
-      @@threads ||= []
+      @@threads ||= {}
       args.each do |thread|
-        @@threads << thread
+        @@threads[self.get_klass()] ||= []
+        @@threads[self.get_klass()] << thread
+        @@threads[self.get_klass()].uniq!
       end
-      @@threads.uniq!
+      #@@threads.uniq! # just all the threads, regarless of
     end
 
     def self.get_threads
-      @@threads ||= []
+      @@threads ||= {}
       @@threads
     end
 
@@ -202,7 +213,10 @@ module NMTS
         var_names.each do |vname|
           # we remove the @ at the beginning of the name
           vvvname = ((vname.to_s)[1..-1]).to_sym
-          if !DATA.inouts[actor.class.get_klass()].keys.include?( vvvname )
+          if (
+            ( !DATA.inouts[actor.class.get_klass()].keys.include?(vvvname) ) &&
+            ( ![:name, :initArgs].include?(vvvname) )
+          )
             val = actor.instance_variable_get("#{vname}")
             DATA.instance_vars[klass][vvvname] = TypeFactory.create nil, val
           end

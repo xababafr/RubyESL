@@ -102,7 +102,7 @@ module NMTS
       visitor.visitRoot self
       @sourceCode = visitor.code.source
 
-      puts "SOURCE CODE : \n"
+      puts "SOURCE CODE : \n\n"
       puts @sourceCode
     end
   end

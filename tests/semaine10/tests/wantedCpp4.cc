@@ -1,5 +1,35 @@
 #include <systemc.h>
 
+SC_MODULE ( sourcer ){
+
+   sc_in < bool > clk;
+   sc_out< sc_uint<32> > inp;
+
+  void source() {
+		sc_uint < 32 > tmp;
+
+		for(int i = 0; i < 64; i++)
+		{
+			if (i > 23 && i < 29)
+				tmp = 256;
+			else
+				tmp = 0;
+			//cout << "SENDING .. " << tmp.to_int() << endl;
+			inp.write(tmp);
+			wait();
+		}
+
+}
+
+  SC_CTOR( sourcer ){
+
+    SC_CTHREAD ( source, clk.pos());
+
+  }
+
+
+};
+
 SC_MODULE( fir ){
 
   sc_in < bool > clk;
@@ -46,36 +76,6 @@ SC_MODULE( fir ){
 			wait();
 		}
 
-
-  }
-
-
-};
-
-SC_MODULE ( sourcer ){
-
-   sc_in < bool > clk;
-   sc_out< sc_uint<32> > inp;
-
-  void source() {
-		sc_uint < 32 > tmp;
-
-		for(int i = 0; i < 64; i++)
-		{
-			if (i > 23 && i < 29)
-				tmp = 256;
-			else
-				tmp = 0;
-			//cout << "SENDING .. " << tmp.to_int() << endl;
-			inp.write(tmp);
-			wait();
-		}
-
-}
-
-  SC_CTOR( sourcer ){
-
-    SC_CTHREAD ( source, clk.pos());
 
   }
 

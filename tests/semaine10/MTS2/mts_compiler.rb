@@ -40,7 +40,9 @@ module NMTS
     def simulate sys
       sys.ordered_actors.each do |actor|
         puts "#SIM_ACTOR : #{actor}"
-        actor.class.get_threads.each do |thread|
+        pp Actor.get_threads
+        actor_threads = Actor.get_threads[actor.class.get_klass()]
+        actor_threads.each do |thread|
           fiber = Fiber.new do
             actor.method(thread).call
           end
@@ -84,23 +86,29 @@ module NMTS
       # contains all the data to recreate the overall system's constructor
       # entities names, constructor parameters, the order of actors....
 
+      # ucoef_hash ==> see actor.initArgs
       # {
       #   [:Sourcer, "src0"]=>[[:req, :name]],
-      #   [:Fir, "fir0"]=>[[:req, :name], [:req, :ucoef]],
+      #   [:Fir, "fir0"]=>[[:req, :name], [:req, :ucoef, ucoef_hash ]],
       #   [:Sinker, "snk0"]=>[[:req, :name]]
       # }
 
-      initParams, threads = {}, {}
+      initParams = {}
       sys.ordered_actors.each do |actor|
         key = [actor.class.get_klass(), actor.name]
         initParams[key] = actor.method(:initialize).parameters
-        threads[actor.class.get_klass()] = actor.class.get_threads()
+
+        if actor.initArgs.size > 0
+          actor.initArgs.each_with_index do |argHash, i|
+            initParams[key][i+1] << argHash
+          end
+        end
       end
 
 
 
       puts "\n\n"
-      root = Root.new ast, initParams, threads # + it collects the data from DATA
+      root = Root.new ast, initParams, Actor.get_threads() # + it collects the data from DATA
 
       # step 5 : generate the systemC code thanks to DATA's singleton and AST
       root.accept SystemC.new
