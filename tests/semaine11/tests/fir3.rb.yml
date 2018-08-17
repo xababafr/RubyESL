@@ -1,0 +1,66 @@
+---
+:INOUTS:
+  :Sourcer:
+  - :symbol: :inp
+    :direction: :output
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: &1 !ruby/class 'Integer'
+  :Fir:
+  - :symbol: :inp
+    :direction: :input
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: *1
+  - :symbol: :outp
+    :direction: :output
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: *1
+  :Sinker:
+  - :symbol: :outp
+    :direction: :input
+    :type: int
+    :value: 0
+    :typeObj: !ruby/object:MTS::SingleType
+      type: *1
+:VARIABLES:
+  :src0:
+    :tmp: !ruby/object:MTS::SingleType
+      type: *1
+  :fir0:
+    :@coef: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 5
+    :name: !ruby/object:MTS::SingleType
+      type: !ruby/class 'String'
+    :vals: !ruby/object:MTS::ArrayType
+      subType: !ruby/object:MTS::SingleType
+        type: *1
+      size: 5
+    :ret: !ruby/object:MTS::SingleType
+      type: *1
+  :snk0:
+    :datain: !ruby/object:MTS::SingleType
+      type: *1
+:CONNEXIONS:
+- - :ename: :src0
+    :cname: :Sourcer
+    :port: :inp
+    :moc: :csp
+  - :ename: :fir0
+    :cname: :Fir
+    :port: :inp
+    :moc: :csp
+- - :ename: :fir0
+    :cname: :Fir
+    :port: :outp
+    :moc: :csp
+  - :ename: :snk0
+    :cname: :Sinker
+    :port: :outp
+    :moc: :csp
