@@ -105,7 +105,10 @@ module NMTS
         end
       end
 
-
+      # we generate a a representation of the ast (visual only)
+      require_relative "./diagram/dot_generator"
+      dot_generator = DotGenerator.new
+      dot_generator.generate ast[ [:Sourcer, :source] ]
 
       puts "\n\n"
       root = Root.new ast, initParams, Actor.get_threads() # + it collects the data from DATA
