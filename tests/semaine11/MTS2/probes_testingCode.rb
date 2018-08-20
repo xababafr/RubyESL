@@ -7,7 +7,7 @@ class Sourcer < NMTS::Actor
   thread :source
 
   def source
-    puts "\nSOURCER::BEHAVIOR()\n\n"
+    puts "SOURCER"
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)

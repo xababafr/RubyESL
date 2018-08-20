@@ -16,6 +16,10 @@ module NMTS
       @ast=parse()
       build_hash_code_for_classes # @class_code_h[:Sensor]=...
 
+      pp @class_code_h[:Sourcer]
+      File.open('./ast.txt', 'w') { |file| file.write("NANI") }
+
+      print "sourcyy"
       pp @class_code_h
 
       #puts "HASH FOR CLASSES"
