@@ -46,6 +46,7 @@ module NMTS
   # the root of everything (starting point of the visitor)
   class Root < Ast
     attr_accessor :inouts,
+                  :sysAst,
                   :threads,
                   :astHash,
                   :channels,
@@ -89,23 +90,26 @@ module NMTS
 
       @rootIterate = {}
       @astHash.each do |methArr, methAst|
-        modul, method = methArr[0], methArr[1]
-        @rootIterate[modul] ||= {}
-        @rootIterate[modul][:methods] ||= []
+        if (methArr != :sys)
+          modul, method = methArr[0], methArr[1]
+          @rootIterate[modul] ||= {}
+          @rootIterate[modul][:methods] ||= []
 
-        methHash = {
-          :name => method,
-          :type => nil ,#TypeFactory.create(nil, nil), # void
-          :args => [],
-          :ast  => methAst
-        }
-        @rootIterate[modul][:methods] << methHash
+          methHash = {
+            :name => method,
+            :type => nil ,#TypeFactory.create(nil, nil), # void
+            :args => [],
+            :ast  => methAst
+          }
+          @rootIterate[modul][:methods] << methHash
 
-        @rootIterate[modul][:inouts] = []
-        @inouts[modul].each do |name, inoutObj|
-          @rootIterate[modul][:inouts] << inoutObj
+          @rootIterate[modul][:inouts] = []
+          @inouts[modul].each do |name, inoutObj|
+            @rootIterate[modul][:inouts] << inoutObj
+          end
         end
       end
+      @sysAst = astHash[:sys]
 
       puts "ROOT ITERATE OBJ : \n"
       pp @rootIterate
@@ -197,10 +201,11 @@ module NMTS
   end
 
   class For < Ast
-    attr_accessor :idx,:range,:body
+    attr_accessor :idx,:range,:body, :cond
 
-    def initialize cond,range,body
-      @cond,@range,@body=cond,range,body
+    def initialize idx,range,body
+      @idx,@range,@body=idx,range,body
+      @cond = nil
     end
 
     def accept visitor
@@ -333,7 +338,7 @@ module NMTS
     def initialize args
       @args = []
       args.each do |arg|
-        @args << arg.children[0]
+        @args << arg.children.first
       end
     end
 
@@ -349,7 +354,7 @@ module NMTS
     end
 
     def accept visitor
-      visitor.visitLVar self
+      visitor.visitIVar self
     end
   end
 
@@ -449,11 +454,28 @@ module NMTS
   end
 
   class Hsh < Ast
-    def initialize
+    attr_accessor :pairs
+
+    def initialize pairs
+      if pairs.size == 1 && pairs[0].is_a?(Hsh)
+        @pairs  = pairs[0].pairs
+      else
+        @pairs = pairs
+      end
     end
 
     def accept visitor
       visitor.visitHsh self
+    end
+  end
+
+  class Pair
+    def initialize val
+      @val = val
+    end
+
+    def accept visitor
+      visitor.visitPair self
     end
   end
 

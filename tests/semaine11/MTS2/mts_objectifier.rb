@@ -2,7 +2,7 @@ require_relative "./mts_objects"
 
 module NMTS
   class Analyzer
-    attr_reader :ast,:sys, :behaviors, :methods_code_h
+    attr_reader :ast,:sys, :behaviors, :methods_code_h, :sys_ast
 
     def evaluate filename
       rcode=IO.read(filename)
@@ -14,6 +14,10 @@ module NMTS
       @filename=filename
       @sys=evaluate(filename)
       @ast=parse()
+
+      puts "PARSED : "
+      pp @ast
+
       build_hash_code_for_classes # @class_code_h[:Sensor]=...
 
       pp @class_code_h[:Sourcer]
@@ -51,6 +55,8 @@ module NMTS
             class_name=child.children[0].children[1]
             @class_code_h||={}
             @class_code_h[class_name]=child
+          elsif (child.type.to_s == "lvasgn" && child.children.first == :sys)
+            @sys_ast = child
           else
             rec_build_hash_code_for_classes child
           end
@@ -81,17 +87,18 @@ module NMTS
 
     # the onky goal of this class is to give access to these two accessors
 
-    attr_accessor :methods_ast, :methods_objects
+    attr_accessor :methods_ast, :methods_objects, :convert, :sys_ast
 
-    def initialize filename
+    def initialize filename, convert = false
       analyzer = Analyzer.new
       analyzer.open filename
-
+      @convert = convert
       @methods_ast = analyzer.methods_code_h
       @methods_objects = {}
       @methods_ast.keys.each do |key|
-        parse_method @methods_ast[ [key[0],key[1]] ], key
+        parse_method(@methods_ast[ [key[0],key[1]] ], key)
       end
+      @sys_ast = parse_assign(analyzer.sys_ast, :local)
     end
 
     def parse_body body, bodyWrapper = false
@@ -107,78 +114,88 @@ module NMTS
 
     def parse_method sexp, key
       name,args,body=*sexp.children[0..2]
-      args=args.children.collect{|e| e.children.first}
+      args=args.children.collect{|e| e}
       body=parse_body(body, true)
-      met = Method.new(name,args,body)
+      met = Method.new(name,(Args.new args),body)
       @methods_objects[key] = met
+    end
+
+    def convert obj
+      if @convert
+        Convert::node( obj )
+      else
+        obj
+      end
     end
 
     def to_object sexp
       return sexp unless sexp.is_a? Parser::AST::Node
       case sexp.type
       when :begin
-        Convert::node( parse_body(sexp) )
+        convert( parse_body(sexp) )
       when :lvasgn
-        Convert::node( parse_assign(sexp,:local) )
+        convert( parse_assign(sexp,:local) )
       when :ivasgn
-        Convert::node( parse_assign(sexp,:instance) )
+        convert( parse_assign(sexp,:instance) )
       when :op_asgn
-        Convert::node( parse_op_assign(sexp) )
+        convert( parse_op_assign(sexp) )
       when :if
-        Convert::node( parse_if(sexp) )
+        convert( parse_if(sexp) )
       when :while
-        Convert::node( parse_while(sexp) )
+        convert( parse_while(sexp) )
       when :for
-        Convert::node( parse_for(sexp) )
+        convert( parse_for(sexp) )
       when :case
-        Convert::node( parse_case(sexp) )
+        convert( parse_case(sexp) )
       when :and
-        Convert::node( parse_and(sexp) )
+        convert( parse_and(sexp) )
       when :or
-        Convert::node( parse_or(sexp) )
+        convert( parse_or(sexp) )
       when :when
-        Convert::node( parse_when(sexp) )
+        convert( parse_when(sexp) )
       when :true
-        Convert::node( parse_true(sexp) )
+        convert( parse_true(sexp) )
       when :false
-        Convert::node( parse_false(sexp) )
+        convert( parse_false(sexp) )
       when :send
-        Convert::node( parse_send(sexp) )
+        convert( parse_send(sexp) )
       when :block
-        Convert::node( parse_block(sexp) )
+        convert( parse_block(sexp) )
       when :args
-        Convert::node( parse_args(sexp) )
+        convert( parse_args(sexp) )
       # seems like ivar and lvar are the same for us?
       when :ivar
-        Convert::node( parse_ivar(sexp) )
+        convert( parse_ivar(sexp) )
       when :lvar
-        Convert::node( parse_lvar(sexp) )
+        convert( parse_lvar(sexp) )
       when :int
-        Convert::node( parse_int(sexp) )
+        convert( parse_int(sexp) )
       when :float
-        Convert::node( parse_float(sexp) )
+        convert( parse_float(sexp) )
       when :str
-        Convert::node( parse_str(sexp) )
+        convert( parse_str(sexp) )
       when :return
-        Convert::node( parse_return(sexp) )
+        convert( parse_return(sexp) )
       when :super
-        Convert::node( parse_super(sexp) )
+        convert( parse_super(sexp) )
       when :irange
-        Convert::node( parse_irange(sexp) )
+        convert( parse_irange(sexp) )
       when :erange
-        Convert::node( parse_erange(sexp) )
+        convert( parse_erange(sexp) )
       when :array
-        Convert::node( parse_array(sexp) )
+        convert( parse_array(sexp) )
       when :hash
-        Convert::node( parse_hash(sexp) )
+        convert( parse_hash(sexp) )
+      when :pair
+        convert( parse_hash(sexp) )
       when :regexp
-        Convert::node( parse_regexp(sexp) )
+        convert( parse_regexp(sexp) )
       when :const
-        Convert::node( parse_const(sexp) )
+        convert( parse_const(sexp) )
       when :sym
-        Convert::node( parse_sym(sexp) )
+        convert( parse_sym(sexp) )
       when :dstr
-        Convert::node( parse_dstr(sexp) )
+        convert( parse_dstr(sexp) )
       else
         #raise "NIY : #{sexp.type} => #{sexp}"
         Unknown.new sexp
@@ -287,7 +304,8 @@ module NMTS
       end
       body.wrapperBody = true
       range.idx = idx.lhs unless (idx.nil? || idx.lhs.nil?)
-      For.new(idx,range,body)
+      puts "FORRR\n\n"
+      For.new(range.idx,range,body)
     end
 
     def parse_case sexp
@@ -300,8 +318,8 @@ module NMTS
     end
 
     def parse_super sexp
-      args = sexp.children.collect{|e| to_object(e)}
-      Super.new(args)
+      args = sexp.children
+      Super.new( (Args.new args) )
     end
 
     def parse_when sexp
@@ -319,10 +337,14 @@ module NMTS
 
     def parse_block sexp
       #caller,method,args=*sexp.children.collect{|e| to_object(e)}
-      puts "BLOCKBLOCK"
       pp sexp
       #pp sexp.children
       caller,args,body=sexp.children.collect{|e| to_object(e)}
+      if !body.is_a?(Body)
+        b = body.dup
+        body = Body.new([b])
+      end
+      body.wrapperBody = true
       Block.new(caller,args,body)
     end
 
@@ -336,7 +358,15 @@ module NMTS
     end
 
     def parse_hash sexp
-      Hsh.new()
+      # we pass the pairs
+      elements=*sexp.children.collect{|e| to_object(e)}
+      Hsh.new(elements)
+    end
+
+    def parse_pair sexp
+      # we pass the pairs
+      elements=*sexp.children.collect{|e| to_object(e)}
+      Pair.new(elements[0])
     end
 
     def parse_regexp sexp
@@ -344,7 +374,15 @@ module NMTS
     end
 
     def parse_const sexp
-      Const.new sexp.children
+      children = []
+      sexp.children.each do |child|
+        if child.class.to_s == "Parser::AST::Node"
+          children << to_object(child)
+        else
+          children << child
+        end
+      end
+      Const.new children
     end
 
     def parse_sym sexp

@@ -12,6 +12,7 @@ require "./mts_dsl"
 require "./mts_simulator"
 require "./mts_addProbes"
 require "./visitors/systemc"
+require "./visitors/addprobes"
 
 module NMTS
 
@@ -21,9 +22,11 @@ module NMTS
 
     end
 
-    def get_ast filename
-      objectifier = Objectifier.new filename
-      objectifier.methods_objects
+    def get_ast filename, convert = false
+      objectifier = Objectifier.new filename, convert
+      ret = objectifier.methods_objects
+      ret[:sys] = objectifier.sys_ast
+      ret
       # .methods_ast would give the original non objectified ast
     end
 
@@ -52,10 +55,27 @@ module NMTS
       DATA.simulator.run
     end
 
-    def generate_systemc filename
+    def generate_ruby filename
       # step 1 : get the System's objectified AST and organised in a hash
       # ast : { klass => [method1_, method2_ast,..], klass2 => ... }
       ast = get_ast filename
+
+      root = Root.new ast, {}, Actor.get_threads() # + it collects the data from DATA
+
+      # step 2 : generate the ruby code thanks to the AST
+      root.accept AddProbesVisitor.new
+
+      File.open("probes2_#{filename}",'w'){|f| f.puts(root.sourceCode)}
+
+      sys = eval_dsl ( "probes2_" + filename )
+
+      simulate sys
+    end
+
+    def generate_systemc filename
+      # step 1 : get the System's objectified AST and organised in a hash
+      # ast : { klass => [method1_, method2_ast,..], klass2 => ... }
+      ast = get_ast filename, true
 
       puts "\n\n AST OBJ \n\n"
       pp ast
@@ -127,5 +147,6 @@ end #MTS
 
 if $PROGRAM_NAME == __FILE__
   compiler = NMTS::Compiler.new
-  compiler.generate_systemc "testingCode.rb"
+  #compiler.generate_systemc "testingCode.rb"
+  compiler.generate_ruby "testingCode.rb"
 end

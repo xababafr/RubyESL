@@ -29,202 +29,6 @@ module NMTS
       @code < node.code
     end
 
-    def visitRoot node
-      code << "#include <systemc.h>"
-      code << "#include <iostream>"
-      code << "#include <string>"
-      code.newline # for each module
-      node.rootIterate.each do |moduleName, moduleHash|
-        code << "SC_MODULE( #{moduleName} ) {"
-        code.newline
-        code.wrap
-
-        # define vars and inouts
-        code << "// clock"
-        code << "sc_in<bool> clk;"
-        code.newline
-
-        code << "// inouts"
-        moduleHash[:inouts].each do |inout|
-          channel = get_channel inout, node.channels
-          dir = ""
-          if inout.dir == :input
-            dir = "sc_in"
-          else
-            dir = "sc_out"
-          end
-
-          code << "#{dir}< #{channel.type.cpp_signature} > #{inout.sym};"
-        end
-        code.newline
-
-        code << "// ivars"
-        puts "IVARS"
-        node.instanceVars[moduleName].each do |iname, itype|
-          code << itype.cpp_signature(iname) + ";"
-        end
-        code.newline
-
-        # print 'initParams : '
-        # print node.initParams
-
-        # if there needs to be one, write the special constructor
-        node.initParams.each do |idArray, paramsArray|
-          klass, entity = idArray[0], idArray[1]
-          if klass == moduleName && paramsArray.size > 1 && paramsArray[1][0] != :rest
-            # same func as below with the sys's constructor
-            paramStr = ""
-            paramsArray.each_with_index do |par, idx|
-              if idx != 0
-                paramStr += ", #{paramsArray[idx][2][:typ].cpp_signature(paramsArray[idx][1])}"
-              end
-            end
-            code << "#{moduleName}(sc_module_name sc_m_name#{paramStr})"
-            code << ": sc_module(sc_m_name) {"
-            code.wrap
-              code.newline
-              node.rootIterate[moduleName][:methods].each do |methodHash|
-                if methodHash[:name] == :initialize
-                  methodAst = methodHash[:ast]
-
-                  pp methodAst
-
-                  # we go throught this one indirectly, to get rid of unecessary body wrapping
-                  visitor = SystemC.new
-                  visitor.code.indent = code.indent + 1
-                  visitor.code << ""
-                  methodAst.accept visitor
-                  src = visitor.code.source
-                  src = src.split("{")[1..-1].join("{")
-                  src = src.split("}")[0..-1].join("}")
-
-                  sysc = SystemCCode.new "#{src}"
-                  sysc.accept self
-                end
-              end
-              code.newline
-              node.threads[moduleName].each do |thread|
-                code << "SC_CTHREAD( #{thread}, clk.pos() );"
-              end
-            code.unwrap
-            code << "}"
-          end
-        end
-        code.newline
-
-        # write the standart constructor
-        code << "SC_CTOR( #{moduleName} ) {"
-        code.wrap
-        node.threads[moduleName].each do |thread|
-          code << "SC_CTHREAD( #{thread}, clk.pos() );"
-        end
-        code.unwrap
-        code << "};"
-        code.newline
-
-        node.threads[moduleName].each do |thread|
-          #code << "void #{thread}() {"
-          # then we start visiting recursively the methods to print the sysc code
-          node.rootIterate[moduleName][:methods].each do |methodHash|
-            if methodHash[:name] == thread
-              # save the local vars to declare
-              methodHash[:ast].toDeclare = node.localVars[moduleName][thread]
-              methodHash[:ast].accept self
-            end
-          end
-        end
-        code.newline
-
-        code << "..."
-
-        code.unwrap
-        code << "};"
-        code.newline
-      end
-      code.newline # end of all modules
-
-      code << "SC_MODULE( System ) {"
-      code.wrap
-
-      # create the vars containing the entities
-      code << "//entities"
-      node.initParams.each do |idArray, paramsArray|
-        klass, entity = idArray[0], idArray[1]
-        code << "#{klass} *#{entity};"
-      end
-      code.newline
-
-      # create the signals and the clock
-      code << "// signals"
-      node.channels.each do |channel|
-        code << "sc_signal< #{channel.type.cpp_signature()} > #{channel.name};"
-      end
-      code << "sc_clock clk_sig;"
-      code.newline
-
-      # constructor of the top System
-      code << "SC_CTOR( System )"
-      code << ': clk_sig ("clk_sig", 10, SC_NS)'
-      code << "{"
-      code.wrap
-      node.initParams.each do |idArray, paramsArray|
-        klass, entity = idArray[0], idArray[1]
-        paramStr, initStr = "", []
-        paramsArray.each_with_index do |par, idx|
-          if idx != 0 && paramsArray[idx][0] != :rest
-            paramStr += ", #{paramsArray[idx][1]}"
-
-            # argHash
-            initStr << "#{paramsArray[idx][2][:typ].cpp_signature(paramsArray[idx][1])} = #{Convert::value(paramsArray[idx][2][:val])};"
-          end
-        end
-        initStr.each do |iStr|
-          code << iStr
-        end
-        code << "#{entity} = new #{klass}(\"#{entity}\"#{paramStr});"
-        code << "#{entity}->clk( clk_sig );"
-
-        node.channels.each do |channel|
-          if channel.from.klass == klass
-            code << "#{entity}->#{channel.from.sym}( #{channel.name}  );"
-          end
-          if channel.to.klass == klass
-            code << "#{entity}->#{channel.to.sym}( #{channel.name}  );"
-          end
-        end
-        code.newline
-      end
-      code.unwrap
-      code << "}"
-      code.newline
-
-      code << "~System(){"
-      code.wrap
-      node.initParams.each do |idArray, paramsArray|
-        klass, entity = idArray[0], idArray[1]
-        code << "delete #{entity};"
-      end
-      code.unwrap
-      code << "}"
-
-      code.unwrap
-      code << "};"
-      code.newline
-
-      # main
-      code << "System *sys = NULL;"
-      code.newline
-      code << "// main"
-      code << "int sc_main(int, char* [])"
-      code << "{"
-      code.wrap
-        code << 'sys = new System("sys");'
-        code << "sc_start();"
-        code << "return 0;"
-      code.unwrap
-      code << "}"
-    end
-
     def visitUnknown node
       code << "unknown( #{node} )"
     end
@@ -433,6 +237,11 @@ module NMTS
       @code < "false"
     end
 
+    def visitIVar node
+      #code << "LVar( #{node} )"
+      code < "#{node.name}"
+    end
+
     def visitLVar node
       #code << "LVar( #{node} )"
       code < "#{node.name}"
@@ -464,6 +273,202 @@ module NMTS
         el.accept self
       end
       @code < "}"
+    end
+
+    def visitRoot node
+      code << "#include <systemc.h>"
+      code << "#include <iostream>"
+      code << "#include <string>"
+      code.newline # for each module
+      node.rootIterate.each do |moduleName, moduleHash|
+        code << "SC_MODULE( #{moduleName} ) {"
+        code.newline
+        code.wrap
+
+        # define vars and inouts
+        code << "// clock"
+        code << "sc_in<bool> clk;"
+        code.newline
+
+        code << "// inouts"
+        moduleHash[:inouts].each do |inout|
+          channel = get_channel inout, node.channels
+          dir = ""
+          if inout.dir == :input
+            dir = "sc_in"
+          else
+            dir = "sc_out"
+          end
+
+          code << "#{dir}< #{channel.type.cpp_signature} > #{inout.sym};"
+        end
+        code.newline
+
+        code << "// ivars"
+        puts "IVARS"
+        node.instanceVars[moduleName].each do |iname, itype|
+          code << itype.cpp_signature(iname) + ";"
+        end
+        code.newline
+
+        # print 'initParams : '
+        # print node.initParams
+
+        # if there needs to be one, write the special constructor
+        node.initParams.each do |idArray, paramsArray|
+          klass, entity = idArray[0], idArray[1]
+          if klass == moduleName && paramsArray.size > 1 && paramsArray[1][0] != :rest
+            # same func as below with the sys's constructor
+            paramStr = ""
+            paramsArray.each_with_index do |par, idx|
+              if idx != 0
+                paramStr += ", #{paramsArray[idx][2][:typ].cpp_signature(paramsArray[idx][1])}"
+              end
+            end
+            code << "#{moduleName}(sc_module_name sc_m_name#{paramStr})"
+            code << ": sc_module(sc_m_name) {"
+            code.wrap
+              code.newline
+              node.rootIterate[moduleName][:methods].each do |methodHash|
+                if methodHash[:name] == :initialize
+                  methodAst = methodHash[:ast]
+
+                  pp methodAst
+
+                  # we go throught this one indirectly, to get rid of unecessary body wrapping
+                  visitor = SystemC.new
+                  visitor.code.indent = code.indent + 1
+                  visitor.code << ""
+                  methodAst.accept visitor
+                  src = visitor.code.source
+                  src = src.split("{")[1..-1].join("{")
+                  src = src.split("}")[0..-1].join("}")
+
+                  sysc = SystemCCode.new "#{src}"
+                  sysc.accept self
+                end
+              end
+              code.newline
+              node.threads[moduleName].each do |thread|
+                code << "SC_CTHREAD( #{thread}, clk.pos() );"
+              end
+            code.unwrap
+            code << "}"
+          end
+        end
+        code.newline
+
+        # write the standart constructor
+        code << "SC_CTOR( #{moduleName} ) {"
+        code.wrap
+        node.threads[moduleName].each do |thread|
+          code << "SC_CTHREAD( #{thread}, clk.pos() );"
+        end
+        code.unwrap
+        code << "};"
+        code.newline
+
+        node.threads[moduleName].each do |thread|
+          #code << "void #{thread}() {"
+          # then we start visiting recursively the methods to print the sysc code
+          node.rootIterate[moduleName][:methods].each do |methodHash|
+            if methodHash[:name] == thread
+              # save the local vars to declare
+              methodHash[:ast].toDeclare = node.localVars[moduleName][thread]
+              methodHash[:ast].accept self
+            end
+          end
+        end
+        code.newline
+
+        code << "..."
+
+        code.unwrap
+        code << "};"
+        code.newline
+      end
+      code.newline # end of all modules
+
+      code << "SC_MODULE( System ) {"
+      code.wrap
+
+      # create the vars containing the entities
+      code << "//entities"
+      node.initParams.each do |idArray, paramsArray|
+        klass, entity = idArray[0], idArray[1]
+        code << "#{klass} *#{entity};"
+      end
+      code.newline
+
+      # create the signals and the clock
+      code << "// signals"
+      node.channels.each do |channel|
+        code << "sc_signal< #{channel.type.cpp_signature()} > #{channel.name};"
+      end
+      code << "sc_clock clk_sig;"
+      code.newline
+
+      # constructor of the top System
+      code << "SC_CTOR( System )"
+      code << ': clk_sig ("clk_sig", 10, SC_NS)'
+      code << "{"
+      code.wrap
+      node.initParams.each do |idArray, paramsArray|
+        klass, entity = idArray[0], idArray[1]
+        paramStr, initStr = "", []
+        paramsArray.each_with_index do |par, idx|
+          if idx != 0 && paramsArray[idx][0] != :rest
+            paramStr += ", #{paramsArray[idx][1]}"
+
+            # argHash
+            initStr << "#{paramsArray[idx][2][:typ].cpp_signature(paramsArray[idx][1])} = #{Convert::value(paramsArray[idx][2][:val])};"
+          end
+        end
+        initStr.each do |iStr|
+          code << iStr
+        end
+        code << "#{entity} = new #{klass}(\"#{entity}\"#{paramStr});"
+        code << "#{entity}->clk( clk_sig );"
+
+        node.channels.each do |channel|
+          if channel.from.klass == klass
+            code << "#{entity}->#{channel.from.sym}( #{channel.name}  );"
+          end
+          if channel.to.klass == klass
+            code << "#{entity}->#{channel.to.sym}( #{channel.name}  );"
+          end
+        end
+        code.newline
+      end
+      code.unwrap
+      code << "}"
+      code.newline
+
+      code << "~System(){"
+      code.wrap
+      node.initParams.each do |idArray, paramsArray|
+        klass, entity = idArray[0], idArray[1]
+        code << "delete #{entity};"
+      end
+      code.unwrap
+      code << "}"
+
+      code.unwrap
+      code << "};"
+      code.newline
+
+      # main
+      code << "System *sys = NULL;"
+      code.newline
+      code << "// main"
+      code << "int sc_main(int, char* [])"
+      code << "{"
+      code.wrap
+        code << 'sys = new System("sys");'
+        code << "sc_start();"
+        code << "return 0;"
+      code.unwrap
+      code << "}"
     end
 
     def visitHsh node
