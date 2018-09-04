@@ -7,7 +7,8 @@ class Sourcer < NMTS::Actor
   thread :source
 
   def source
-    puts "SOURCER"
+    to_write = "SOURCER"
+    puts to_write
     tmp = 0
     for i in 0...64
       if (i > 23 && i < 29)

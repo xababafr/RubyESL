@@ -36,7 +36,7 @@ module NMTS
     def visitMethod node
       #code << "method( #{node} )"
       argsStr = ""
-      if node.args.size > 0
+      if node.args.args.size > 0
         # create the argsStr
       end
       @code << "#{node.returnType.cpp_signature}#{node.name} (#{argsStr})"
@@ -381,7 +381,7 @@ module NMTS
         end
         code.newline
 
-        code << "..."
+        #code << "..."
 
         code.unwrap
         code << "};"

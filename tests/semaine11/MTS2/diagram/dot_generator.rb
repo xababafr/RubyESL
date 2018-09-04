@@ -19,7 +19,8 @@ module NMTS
       puts "==> partitions to visually distinguish between terminals and non-terminals"
       h_tokens,h_non_terminals=partition_term_vs_nonterm(@aspect)
       puts "==> preparing dot declarations"
-      @decl_tokens       =h_tokens.collect{|k,v| "#{k} [label=\"#{v}\",fontcolor=\"red\",color=\"red\"]"}.join("\n\t")
+      prng = Random.new(12345)
+      @decl_tokens       =h_tokens.collect{|k,v| "#{k} [label=\"#{v}\##{prng.rand(10000000)}\",fontcolor=\"red\",color=\"red\"]"}.join("\n\t")
       @decl_non_terminals=h_non_terminals.collect{|k,v|
         kname=v.class.to_s.split('::').last
         "#{k} [label=\"#{kname}\"]"

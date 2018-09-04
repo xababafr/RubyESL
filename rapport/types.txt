@@ -1,0 +1,26 @@
+{
+  :Sourcer => {
+    :source => {
+      :tmp      => [0, #<NMTS::SingleType:0x0000560d17b73bb0 @type=Integer>],
+      :i        => [63, #<NMTS::SingleType:0x0000560d17b72f30 @type=Integer>],
+      :to_write => ["SOURCER", #<NMTS::SingleType:0x0000560d17b7c788 @type=String>]
+    }
+  },
+  :Fir => {
+    :initialize => {
+      :i => [4, #<NMTS::SingleType:0x0000560d17bc2f58 @type=Integer>]
+    },
+   :behavior => {
+      :vals => [ [0, 0, 0, 0, 0], #<NMTS::ArrayType:0x0000560d17b51cb8 @size=5, @subType=#<NMTS::SingleType:0x0000560d17b52438 @type=Integer>>],
+      :j    => [1, #<NMTS::SingleType:0x0000560d17b501d8 @type=Integer>],
+      :i    => [4, #<NMTS::SingleType:0x0000560d17b667d0 @type=Integer>],
+     :ret   => [0, #<NMTS::SingleType:0x0000560d17b65808 @type=Integer>]
+    }
+  },
+  :Sinker => {
+    :sink => {
+      :k     => [63, #<NMTS::SingleType:0x0000560d17b1f2b8 @type=Integer>],
+     :datain => [0, #<NMTS::SingleType:0x0000560d17b1e458 @type=Integer>]
+    }
+  }
+}

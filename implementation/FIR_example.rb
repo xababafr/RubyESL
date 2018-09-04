@@ -1,8 +1,8 @@
-require "../MTS2/mts_dsl"
+require "./resl_dsl"
 
 # FIR filter
 
-class Sourcer < NMTS::Actor
+class Sourcer < RubyESL::Actor
   output :inp
   thread :source
 
@@ -24,7 +24,7 @@ class Sourcer < NMTS::Actor
 
 end
 
-class Fir < NMTS::Actor
+class Fir < RubyESL::Actor
   input  :inp
   output :outp
   thread :behavior
@@ -39,7 +39,7 @@ class Fir < NMTS::Actor
   end
 
   def behavior
-    puts "\nFIR::BEHAVIOR()\n\n"
+    puts "FIR"
 
     vals = [0,0,0,0,0]
     while(true)
@@ -60,12 +60,12 @@ class Fir < NMTS::Actor
   end
 end
 
-class Sinker < NMTS::Actor
+class Sinker < RubyESL::Actor
   input  :outp
   thread :sink
 
   def sink
-    puts "\nSINKER::BEHAVIOR()\n\n"
+    puts "SINKER"
     for k in 0...64
       datain = read(:outp)
       wait()
@@ -79,7 +79,7 @@ end
 
 # |Sourcer| ==inp==> |Fir| ==outp==> |Sinker|
 
-sys=NMTS::System.new("sys") do
+sys=RubyESL::System.new("sys") do
     ucoef = [18,77,107,77,18]
 
     src0 = Sourcer.new("src0")

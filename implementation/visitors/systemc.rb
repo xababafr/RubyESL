@@ -2,7 +2,7 @@ require_relative "./code"
 require_relative "./visitor"
 require_relative "./convert"
 
-module NMTS
+module RubyESL
 
 
   class SystemC < Visitor
@@ -27,6 +27,10 @@ module NMTS
 
     def visitSystemCCode node
       @code < node.code
+    end
+
+    def visitRubyCode node
+      @code.del
     end
 
     def visitUnknown node
@@ -117,7 +121,6 @@ module NMTS
     def visitIf node
       #code << "If( #{node} )"
       @code < "if "
-      pp node.cond
       node.cond.accept self
       node.body.accept self unless node.body.nil?
       @code.newline
@@ -302,10 +305,9 @@ module NMTS
 
           code << "#{dir}< #{channel.type.cpp_signature} > #{inout.sym};"
         end
-        code.newline
+        code.newline unless node.instanceVars[moduleName].size < 1
 
-        code << "// ivars"
-        puts "IVARS"
+        code << "// ivars" unless node.instanceVars[moduleName].size < 1
         node.instanceVars[moduleName].each do |iname, itype|
           code << itype.cpp_signature(iname) + ";"
         end
@@ -332,9 +334,6 @@ module NMTS
               node.rootIterate[moduleName][:methods].each do |methodHash|
                 if methodHash[:name] == :initialize
                   methodAst = methodHash[:ast]
-
-                  pp methodAst
-
                   # we go throught this one indirectly, to get rid of unecessary body wrapping
                   visitor = SystemC.new
                   visitor.code.indent = code.indent + 1

@@ -1,9 +1,9 @@
 # there goes the defition of Ruby's systemC-like DSL
-require "./mts_data"
-require "./mts_simulator"
-require "./mts_types"
+require "./resl_data"
+require "./resl_simulator"
+require "./resl_types"
 
-module NMTS
+module RubyESL
 
   class InOut
     attr_reader :klass, :sym, :dir
@@ -45,7 +45,6 @@ module NMTS
     attr_reader :name, :threads, :initArgs
 
     def initialize name, *args
-      puts "dsl_newActor #{self.class.get_klass()}"
       @initArgs = []
       if args.size > 0
         args.each do |arg|
@@ -79,7 +78,6 @@ module NMTS
     end
 
     def self.input *args
-      puts "dsl_input #{get_klass()} => #{args}"
       if ( DATA.local_vars[get_klass()].nil? ||
            DATA.instance_vars[get_klass()].nil? ||
            DATA.inouts[get_klass()].nil? )
@@ -93,7 +91,6 @@ module NMTS
     end
 
     def self.output *args
-      puts "dsl_output #{get_klass()} => #{args}"
       if ( DATA.local_vars[get_klass()].nil? ||
            DATA.instance_vars[get_klass()].nil? ||
            DATA.inouts[get_klass()].nil? )
@@ -107,7 +104,6 @@ module NMTS
     end
 
     def self.thread *args
-      puts "dsl_thread #{get_klass()} => #{args}"
       @@threads ||= {}
       args.each do |thread|
         @@threads[self.get_klass()] ||= []
@@ -138,12 +134,18 @@ module NMTS
     # the use of break makes sure that only one connexion can be made per inout
     # more connexions will simply not be explored
 
-    def register name, val, klass, method
-      #puts "REGISTER : (#{klass}, #{method}) ==> (#{name}, #{var})"
-      DATA.local_vars[klass][method] ||= {}
-      DATA.local_vars[klass][method][name] ||= []
-      prev_val = DATA.local_vars[klass][method][name][0] # can be nil
-      DATA.local_vars[klass][method][name] = [val, TypeFactory.create(prev_val, val)]
+    def register name, val, klass, method = ""
+      if name[0] == "@"
+        name = name[1..-1].to_sym
+        DATA.instance_vars[klass] ||= {}
+        DATA.instance_vars[klass][name] ||= []
+        DATA.instance_vars[klass][name] = TypeFactory.create(nil, val)
+      else
+        DATA.local_vars[klass][method] ||= {}
+        DATA.local_vars[klass][method][name] ||= []
+        prev_val = DATA.local_vars[klass][method][name][0] # can be nil
+        DATA.local_vars[klass][method][name] = [val, TypeFactory.create(prev_val, val)]
+      end
     end
 
     def read inout_sym
@@ -198,11 +200,6 @@ module NMTS
     end
 
     def set_actors array
-      # actors_classes = []
-      # array.each do |actor|
-      #   actors_classes << actor.class.get_klass()
-      # end
-      # @ordered_actors = actors_classes.uniq!
       @ordered_actors = array
     end
 
@@ -225,23 +222,10 @@ module NMTS
     end
 
     def connect inoutsHash
-      puts "dsl_connect #{inoutsHash}"
       inout1, inout2 = inoutsHash.keys.first, inoutsHash.values.first
       DATA.channels << (Channel.new inout1, inout2)
     end
 
-    # returns the channel that corresponds to this inout
-    # breaks ==> no doublons allowed
-    # def get_channel inout
-    #   ret = nil
-    #   DATA.channels.each do |channel|
-    #     if channel.from == inout_sym || channel.to == inout_sym
-    #       ret = channel
-    #       break
-    #     end
-    #   end
-    #   ret
-    # end
 
   end #System
 

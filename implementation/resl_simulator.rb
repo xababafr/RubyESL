@@ -2,9 +2,9 @@
 
 require "fiber"
 require "singleton"
-require "./mts_data"
+require "./resl_data"
 
-module NMTS
+module RubyESL
 
 
   class Simulator

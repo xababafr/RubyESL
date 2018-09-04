@@ -1,15 +1,36 @@
 require_relative "./code"
 require_relative "./visitor"
+require_relative "./prettyprinter"
 require_relative "./convert"
 
-module NMTS
+module RubyESL
 
 
-  class AddProbesVisitor < Visitor
+  class AddProbes < PrettyPrinter
     attr_reader :code
+    attr_accessor :parents_stack
+
+    def create_register_call calling_node, varName
+      if varName[0] == "@"
+        rStr = "register(:#{varName},#{varName}, self.class.get_klass())"
+      else
+        rStr = "register(:#{varName},#{varName}, self.class.get_klass(), __method__)"
+      end
+      parent = @parents_stack.last
+      if !parent.nil?
+        parent.stmts.each_index do |i|
+          node = parent.stmts[i]
+          if node == calling_node && !parent.systemBlock
+            callObj = RubyCode.new rStr
+            parent.stmts.insert(i+1, callObj)
+          end
+        end
+      end
+    end
 
     def initialize
       @code = Code.new "    "
+      @parents_stack = []
     end
 
     # returns the channel that corresponds to this inout
@@ -29,62 +50,14 @@ module NMTS
     #   @code < node.code
     # end
 
-    def visitRoot node
-      code << "require \"../MTS2/mts_dsl\""
-
-      code.newline # for each module
-      node.rootIterate.each do |moduleName, moduleHash|
-        code << "class #{moduleName} < NMTS::Actor"
-        code.newline
-        code.wrap
-
-        # define inouts
-        moduleHash[:inouts].each do |inout|
-          channel = get_channel inout, node.channels
-          dir = ""
-          if inout.dir == :input
-            dir = "input"
-          else
-            dir = "output"
-          end
-
-          code << "#{dir} :#{inout.sym}"
-        end
-
-        #define threads
-        code << "thread :#{node.threads[moduleName].join(', :')}"
-        code.newline
-
-        # then, go for the methods
-        node.rootIterate[moduleName][:methods].each do |methodHash|
-          methodHash[:ast].accept self
-          code.newline
-        end
-
-        code.unwrap
-        code << "end"
-        code.newline 2
-      end
-
-      # constructor of the top System
-      node.sysAst.accept self
-
-    end
-
-    def visitUnknown node
-      code << "unknown(#{node})"
-    end
-
-    def visitMethod node
-      @code << "def #{node.name} "
-      node.args.accept self unless node.args.args.size < 1
-      node.body.accept self unless node.body.nil?
-      @code << "end"
+    def visitRubyCode node
+      @code < node.code
     end
 
     def visitBody node
       #code << "body( #{node} )"
       if node.wrapperBody
+        @parents_stack << node
         @code.wrap
         node.stmts.each do |el|
           if !el.nil?
@@ -93,6 +66,7 @@ module NMTS
           end
         end
         @code.unwrap
+        @parents_stack.pop
       else
         @code < "("
         node.stmts.each do |el|
@@ -108,74 +82,13 @@ module NMTS
       #code << "assign( #{node} )"
       @code < node.lhs.to_s + " = "
       node.rhs.accept self unless node.rhs.nil?
-    end
-
-    def visitSuper node
-      code << "super "
-      node.args.accept self
-    end
-
-    def visitBlock node
-      code << "block( #{node} )"
-    end
-
-    def visitArgs node
-      code < "#{node.args.join(', ')}"
+      create_register_call node, node.lhs.to_s
     end
 
     def visitOpAssign node
-      #code << "OpAssign( #{node} )"
       @code < node.lhs.lhs.to_s + " #{node.mid}= "
       node.rhs.accept self unless node.rhs.nil?
-    end
-
-    def visitIf node
-      #code << "If( #{node} )"
-      @code << "if "
-      node.cond.accept self
-      node.body.accept self unless node.body.nil?
-      @code << "else" unless node.else_.nil?
-      node.else_.accept self unless node.else_.nil?
-      @code << "end"
-    end
-
-    def visitWhile node
-      #code << "While( #{node} )"
-      @code < "while "
-      node.cond.accept self
-      node.body.accept self unless node.body.nil?
-      @code << "end"
-    end
-
-    def visitFor node
-      #code << "For( #{node} )"
-      node.idx ||= "i"
-      @code < "for #{node.idx} in "
-      node.range.accept self
-      node.body.accept self
-      @code << "end"
-    end
-
-    def visitIRange node # <
-      #code << "irange( #{node} )"
-      node.lhs.accept self
-      @code < ".."
-      node.rhs.accept self
-    end
-
-    def visitERange node # <=
-      #code << "erange( #{node} )"
-      node.lhs.accept self
-      @code < "..."
-      node.rhs.accept self
-    end
-
-    def visitCase node
-      code << "Case( #{node} )"
-    end
-
-    def visitWhen node
-      code << "When( #{node} )"
+      create_register_call node, node.lhs.lhs.to_s
     end
 
     def visitMCall node
@@ -194,138 +107,24 @@ module NMTS
         arg.accept self
       end
       @code < ")"
-
-    end
-
-    def visitBlock node
-      #code << "Block( #{node} )"
-      pp node
-      node.caller.accept self
-      argsStr = node.args.args.join(',')
-      afterDoStr = ""
-      if node.args.args.size > 0
-        afterDoStr = "|#{argsStr}|"
+      if node.method == :[]=
+        create_register_call node, node.caller.tname.to_s
       end
-      @code < " do #{afterDoStr}"
-      node.body.accept self
-      @code << "end"
-    end
 
-    def visitDStr node
-      node.elements.each_with_index do |el,idx|
-        if idx != 0
-          @code < " + "
-        end
-        el.accept self unless el.nil?
-        if !(el.is_a? StrLit)
-          @code < ".to_s"
-        end
-      end
-    end
-
-    def visitAnd node
-      #code << "And (#{node} )"
-      @code < "("
-      node.lhs.accept self
-      @code < ") && ("
-      node.rhs.accept self
-      @code < ")"
-    end
-
-    def visitOr node
-      #code << "Or( #{node} )"
-      @code < "("
-      node.lhs.accept self
-      @code < ") || ("
-      node.rhs.accept self
-      @code < ")"
-    end
-
-    def visitTrue node
-      #code << "True( #{node} )"
-      @code < "true"
-    end
-
-    def visitFalse node
-      #code << "False( #{node} )"
-      @code < "false"
     end
 
     def visitIVar node
       #code << "LVar( #{node} )"
       code < "@#{node.name}"
+      create_register_call node, "@#{node.name}"
     end
 
     def visitLVar node
       #code << "LVar( #{node} )"
       code < "#{node.name}"
+      create_register_call node, "#{node.name}"
     end
 
-    def visitIntLit node
-      #code << "IntLit( #{node} )"
-      @code < "#{node.value}"
-    end
-
-    def visitFloatLit node
-      #code << "FloatLit( #{node} )"
-      @code < "#{node.value}"
-    end
-
-    def visitStrLit node
-      #code << "StrLit( #{node} )"
-      node.value = node.value.gsub("\n", '\n').gsub("\t", '\t') unless node.value.nil?
-      @code < "\"#{node.value}\""
-    end
-
-    def visitAry node
-      #code << "Ary( #{node} )"
-      @code < "["
-      node.elements.each_with_index do |el,idx|
-        if idx !=  0
-          @code < ", "
-        end
-        el.accept self
-      end
-      @code < "]"
-    end
-
-    def visitHsh node
-      @code < "{"
-      node.pairs.each_index do |i|
-        @code < " => " unless i == 0
-        node.pairs[i].accept self
-      end
-      @code < "}"
-    end
-
-    def visitPair node
-      node.val.accept self
-    end
-
-
-    def visitRegExp node
-      code << "RegExp( #{node} )"
-    end
-
-    def visitReturn node
-      code << "return( #{node} )"
-    end
-
-    def visitConst node
-      #code << "Const (#{node})"
-      node.children.each do |child|
-        if child.is_a?(Const)
-          child.accept self
-          @code < "::"
-        end
-      end
-      @code < "#{node.children[1]}"
-    end
-
-    def visitSym node
-      #code << "Sym( #{node} )"
-      @code < ":#{node.value}"
-    end
   end
 
 

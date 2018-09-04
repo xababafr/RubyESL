@@ -99,6 +99,10 @@ module NMTS
       simulate sys
       sys.type_instance_vars
 
+      puts "\n\n"
+      pp DATA.local_vars
+      puts "\n\n"
+
       # pp DATA.local_vars
       # puts "\n\n"
       # pp DATA.instance_vars
@@ -147,6 +151,6 @@ end #MTS
 
 if $PROGRAM_NAME == __FILE__
   compiler = NMTS::Compiler.new
-  #compiler.generate_systemc "testingCode.rb"
-  compiler.generate_ruby "testingCode.rb"
+  compiler.generate_systemc "testingCode.rb"
+  #compiler.generate_ruby "testingCode.rb"
 end

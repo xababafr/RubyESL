@@ -1,6 +1,6 @@
 # this file defines the tyoes objects needed for the type inferring, and the type factory
 
-module NMTS
+module RubyESL
 
   class Type
     def identifier

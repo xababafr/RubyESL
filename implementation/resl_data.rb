@@ -3,7 +3,7 @@
 
 require 'singleton'
 
-module NMTS
+module RubyESL
 
   # globals for the module
   class GlobalData

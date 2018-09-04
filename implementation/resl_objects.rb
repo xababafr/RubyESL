@@ -1,9 +1,9 @@
 # this code contains all the objects necessary to create an AST
 
-require_relative "./mts_types"
+require_relative "./resl_types"
 require_relative "./visitors/systemc"
 
-module NMTS
+module RubyESL
 
   class Ast
     def accept
@@ -28,6 +28,18 @@ module NMTS
 
     def to_s
       @sexp.to_s
+    end
+  end
+
+  class RubyCode < Ast
+    attr_accessor :code
+
+    def initialize code
+      @code = code
+    end
+
+    def accept visitor
+      visitor.visitRubyCode self
     end
   end
 
@@ -66,7 +78,6 @@ module NMTS
       @instanceVars = DATA.instance_vars
 
       createIterativeObject()
-      puts "ROOT OBJ INITIALIZED"
     end
 
     def createIterativeObject
@@ -110,9 +121,6 @@ module NMTS
         end
       end
       @sysAst = astHash[:sys]
-
-      puts "ROOT ITERATE OBJ : \n"
-      pp @rootIterate
     end
 
     def accept visitor
@@ -139,12 +147,13 @@ module NMTS
   end
 
   class Body < Ast
-    attr_accessor :stmts, :wrapperBody, :toDeclare
+    attr_accessor :stmts, :wrapperBody, :toDeclare, :systemBlock
 
     def initialize stmts=[], wrapperBody = false, toDeclare = {}
       @stmts=stmts
       @wrapperBody = wrapperBody
       @toDeclare = toDeclare
+      @systemBlock = false
     end
 
     def accept visitor
@@ -348,8 +357,9 @@ module NMTS
   end
 
   class IVar < Ast
-    attr_accessor :name, :type
+    attr_accessor :name, :type, :tname
     def initialize name
+      @tname=name
       @name=name[1..-1]
     end
 
@@ -359,9 +369,10 @@ module NMTS
   end
 
   class LVar < Ast
-    attr_accessor :name, :type
+    attr_accessor :name, :type, :tname
     def initialize name
       @name=name
+      @tname=name
     end
 
     def accept visitor

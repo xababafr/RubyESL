@@ -1,6 +1,7 @@
-require_relative "./mts_objects"
+require_relative "./resl_objects"
+require "parser/current"
 
-module NMTS
+module RubyESL
   class Analyzer
     attr_reader :ast,:sys, :behaviors, :methods_code_h, :sys_ast
 
@@ -15,16 +16,7 @@ module NMTS
       @sys=evaluate(filename)
       @ast=parse()
 
-      puts "PARSED : "
-      pp @ast
-
       build_hash_code_for_classes # @class_code_h[:Sensor]=...
-
-      pp @class_code_h[:Sourcer]
-      File.open('./ast.txt', 'w') { |file| file.write("NANI") }
-
-      print "sourcyy"
-      pp @class_code_h
 
       #puts "HASH FOR CLASSES"
       #pp @class_code_h
@@ -32,7 +24,7 @@ module NMTS
         get_methods klass
       end
       #puts "HASH FOR METHODS"
-      #pp @methods_code_h
+      pp @methods_code_h[[:Sourcer,:source]]
     end
 
     def get_actor_classes
@@ -102,7 +94,6 @@ module NMTS
     end
 
     def parse_body body, bodyWrapper = false
-      puts "PARSE_BODY(#{caller_locations(1,1)[0].label})"
       if body != nil && body.type==:begin
         stmts=body.children.collect{|stmt| to_object(stmt)}
       else
@@ -257,7 +248,6 @@ module NMTS
     def parse_if sexp
       cond,body,else_=sexp.children.collect{|e| to_object(e)}
       # happens if only one line of code is in the body of the if
-      pp body
       if !body.is_a?(Body)
         b = body.dup
         body = Body.new([b])
@@ -272,7 +262,6 @@ module NMTS
     end
 
     def parse_and sexp
-      pp sexp.children
       lhs,rhs = sexp.children.collect{|e| to_object(e)}
       And.new(lhs,rhs)
     end
@@ -285,7 +274,6 @@ module NMTS
     def parse_while sexp
       cond,body=sexp.children.collect{|e| to_object(e)}
       # happens if only one line of code is in the body of the while
-      pp body
       if !body.is_a?(Body)
         b = body.dup
         body = Body.new([b])
@@ -297,19 +285,16 @@ module NMTS
     def parse_for sexp
       idx,range,body=sexp.children.collect{|e| to_object(e)}
       # happens if only one line of code is in the body of the for
-      pp body
       if !body.is_a?(Body)
         b = body.dup
         body = Body.new([b])
       end
       body.wrapperBody = true
       range.idx = idx.lhs unless (idx.nil? || idx.lhs.nil?)
-      puts "FORRR\n\n"
       For.new(range.idx,range,body)
     end
 
     def parse_case sexp
-      pp sexp
       elems=sexp.children.collect{|e| to_object(e)}
       expr=elems.shift
       whens=elems.select{|e| e.is_a? MTS::When}
@@ -336,8 +321,6 @@ module NMTS
     end
 
     def parse_block sexp
-      #caller,method,args=*sexp.children.collect{|e| to_object(e)}
-      pp sexp
       #pp sexp.children
       caller,args,body=sexp.children.collect{|e| to_object(e)}
       if !body.is_a?(Body)
@@ -345,6 +328,9 @@ module NMTS
         body = Body.new([b])
       end
       body.wrapperBody = true
+      if caller.name == :System
+        body.systemBlock = true
+      end
       Block.new(caller,args,body)
     end
 

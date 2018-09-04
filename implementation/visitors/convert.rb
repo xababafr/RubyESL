@@ -1,7 +1,7 @@
-require_relative "../mts_objects"
+require_relative "../resl_objects"
 require_relative "./systemc"
 
-module NMTS
+module RubyESL
 
   # this class contains only static methods
   # goal : make the necessary conversions betwween ruby and cpp
